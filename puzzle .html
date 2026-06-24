@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Rush - Puzzle Tournament</title>
+    
+    <!-- Firebase SDK Links -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0d0e15;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Auth Screen Styling */
+        #auth-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+            text-align: center;
+        }
+        .auth-card {
+            background: #161925;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #3f37c9;
+            box-shadow: 0 0 25px rgba(63, 55, 201, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        .auth-btn {
+            background: #fff;
+            color: #000;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 25px;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+        .auth-btn:hover { transform: scale(1.02); background: #f0f0f0; }
+
+        /* Game Screen Layout */
+        #game-screen { display: none; width: 100%; max-width: 500px; }
+
+        /* Top Header Stats */
+        .header-stats {
+            background: #161925;
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .coin-box {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .coin-icon {
+            width: 24px;
+            height: 24px;
+            background: #ffd700;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #ffd700;
+        }
+        .pool-box { font-size: 14px; color: #a0a5c1; }
+
+        /* Main Game Box */
+        .game-container {
+            background: #161925;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #3f37c9;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .puzzle-title { font-size: 18px; color: #00f2fe; margin-bottom: 5px; }
+        .puzzle-text { font-size: 22px; font-weight: bold; margin: 20px 0; min-height: 60px; }
+        
+        /* Input & Buttons */
+        .answer-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #3f37c9;
+            background: #0d0e15;
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+            margin-bottom: 15px;
+        }
+        .answer-input:focus { border-color: #00f2fe; }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #3f37c9, #00f2fe);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.98); }
+
+        /* Custom Cool Notification Pop-up */
+        .custom-popup {
+            display: none;
+            position: fixed;
+            top: 20px;
+            background: #10b981;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+            z-index: 100;
+            animation: slideIn 0.3s ease-out;
+        }
+        .custom-popup.wrong { background: #ef4444; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Leaderboard Area */
+        .leaderboard-box {
+            background: #111420;
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid #222533;
+        }
+        .leaderboard-title {
+            font-size: 16px;
+            color: #ff007f;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .player-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 5px;
+            border-bottom: 1px solid #1c1f30;
+            font-size: 14px;
+        }
+        .player-row.top-player { color: #ffd700; font-weight: bold; }
+        .player-row.me { background: rgba(0, 242, 254, 0.15); border-radius: 5px; border-left: 3px solid #00f2fe; }
+
+        /* Lock Overlay (Ads Alert) */
+        .lock-screen {
+            display: none;
+            position: absolute;
+            background: rgba(13, 14, 21, 0.98);
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Notification Popup Box -->
+    <div id="popup-notification" class="custom-popup">Notification Message</div>
+
+    <!-- 1. AUTH SCREEN (GOOGLE LOGIN) -->
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h1 style="color: #00f2fe; margin-bottom: 10px;">Brain Rush 🧠</h1>
+            <p style="color: #a0a5c1;">Puzzles solve karo, Leaderboard top karo aur Crown jeeto!</p>
+            <center>
+                <button class="auth-btn" onclick="loginWithGoogle()">
+                    <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/logo_googleg_color_web_24dp.png" width="20">
+                    Sign in with Google
+                </button>
+            </center>
+        </div>
+    </div>
+
+    <!-- 2. MAIN GAME SCREEN -->
+    <div id="game-screen">
+        <div class="header-stats">
+            <div class="pool-box">Room Pool: <span id="pool-id">Group_No_1</span></div>
+            <div class="coin-box"><span class="coin-icon"></span> <span id="my-coins">0</span></div>
+        </div>
+
+        <div class="game-container">
+            <div class="puzzle-title">Puzzle #<span id="puzzle-number">1</span>/10</div>
+            <div class="puzzle-text" id="puzzle-question">Loading Puzzle...</div>
+            
+            <input type="text" id="user-answer" class="answer-input" placeholder="Apna jawab likho...">
+            <button class="btn" onclick="checkAnswer()">Submit Answer</button>
+
+            <!-- Lock Screen for Ads (10 questions limit) -->
+            <div class="lock-screen" id="ad-lock-screen">
+                <h2 style="color: #ff007f;">🔒 10 Puzzles Completed!</h2>
+                <p style="margin: 15px 0; color: #a0a5c1;">Agle 10 puzzles unlock karne ke liye ek chota sa ad dekhein.</p>
+                <button class="btn" style="background: linear-gradient(45deg, #ff007f, #ff758c);" onclick="watchAdToUnlock()">Watch Ad to Continue</button>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard-box">
+            <div class="leaderboard-title">
+                <span>🏆 Pool Leaderboard (Top 5 Wins)</span>
+                <span style="color: #a0a5c1; font-size:12px;">Resets in: 2 Days</span>
+            </div>
+            <div id="leaderboard-list">
+                <!-- Data fetched dynamically from Firestore -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Your Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB67TrXlrvp69dWmiMThTRqnAq41ernlG8",
+            authDomain: "puzzle-game-390ed.firebaseapp.com",
+            projectId: "puzzle-game-390ed",
+            storageBucket: "puzzle-game-390ed.firebasestorage.app",
+            messagingSenderId: "90369555191",
+            appId: "1:90369555191:web:959bc1c255fc036623f1f2",
+            measurementId: "G-N7TCV8MKZH"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Sample Questions
+        const puzzles = [
+            { q: "Mummy ka ulta kya hota hai? (Hint: Papa nahi)", a: "ymmum" },
+            { q: "Wo kya hai jo upar jata hai par nike kabhi nahi aata?", a: "umar" },
+            { q: "10 + 20 * 0 + 5 = ?", a: "15" },
+            { q: "Aisa kaun sa phal hai jise hum khareed nahi sakte?", a: "mehnat ka phal" }
+        ];
+
+        let currentUser = null;
+        let currentPuzzleIndex = 0;
+        let myCoins = 0;
+        let solvedCount = 0;
+
+        // 1. Google Login Function
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    showNotification("Login Successful! Welcome 🎉", false);
+                })
+                .catch((error) => {
+                    showNotification("Login Failed: " + error.message, true);
+                });
+        }
+
+        // Auth State Observer (Tracks if user is logged in or out)
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('game-screen').style.display = 'block';
+                loadUserData();
+            } else {
+                document.getElementById('auth-screen').style.display = 'flex';
+                document.getElementById('game-screen').style.display = 'none';
+            }
+        });
+
+        // 2. Load or Create User Data in Firestore Database
+        function loadUserData() {
+            const userRef = db.collection("users").doc(currentUser.uid);
+            
+            userRef.get().then((doc) => {
+                if (doc.exists) {
+                    let data = doc.data();
+                    myCoins = data.coins || 0;
+                    currentPuzzleIndex = data.currentPuzzle || 0;
+                    solvedCount = data.solvedCount || 0;
+                } else {
+                    // Create New User Document
+                    userRef.set({
+                        uid: currentUser.uid,
+                        name: currentUser.displayName,
+                        coins: 0,
+                        currentPuzzle: 0,
+                        solvedCount: 0,
+                        poolId: "Group_No_1"
+                    });
+                    myCoins = 0;
+                    currentPuzzleIndex = 0;
+                    solvedCount = 0;
+                }
+                document.getElementById('my-coins').innerText = myCoins;
+                loadPuzzle();
+                listenToLeaderboard();
+            });
+        }
+
+        // 3. Load Active Puzzle Logic
+        function loadPuzzle() {
+            if (solvedCount >= 10) {
+                document.getElementById('ad-lock-screen').style.display = 'flex';
+                return;
+            }
+            let p = puzzles[currentPuzzleIndex % puzzles.length];
+            document.getElementById('puzzle-question').innerText = p.q;
+            document.getElementById('puzzle-number').innerText = (solvedCount % 10) + 1;
+            document.getElementById('user-answer').value = "";
+        }
+
+        // 4. Check User's Answer
+        function checkAnswer() {
+            let input = document.getElementById('user-answer').value.trim().toLowerCase();
+            let p = puzzles[currentPuzzleIndex % puzzles.length];
+
+            if (input === p.a) {
+                myCoins += 3;
+                solvedCount++;
+                currentPuzzleIndex++;
+                
+                // Update Local UI Screen
+                document.getElementById('my-coins').innerText = myCoins;
+                showNotification("Sahi Jawab! +3 Coins Status Updated 🎉", false);
+
+                // Update to Firestore Database Realtime
+                db.collection("users").doc(currentUser.uid).update({
+                    coins: myCoins,
+                    currentPuzzle: currentPuzzleIndex,
+                    solvedCount: solvedCount
+                });
+
+                loadPuzzle();
+            } else {
+                showNotification("Galat Jawab! Dobara koshish karo.", true);
+            }
+        }
+
+        // 5. Watch Simulated Advertisement
+        function watchAdToUnlock() {
+            showNotification("Ad Load Ho Raha Hai...", false);
+            setTimeout(() => {
+                solvedCount = 0;
+                db.collection("users").doc(currentUser.uid).update({ solvedCount: 0 });
+                document.getElementById('ad-lock-screen').style.display = 'none';
+                showNotification("Game Unlocked! Next 10 puzzles ready.", false);
+                loadPuzzle();
+            }, 3000);
+        }
+
+        // 6. Realtime Live Leaderboard Sync from Firebase
+        function listenToLeaderboard() {
+            db.collection("users").orderBy("coins", "desc").limit(5)
+                .onSnapshot((snapshot) => {
+                    const list = document.getElementById('leaderboard-list');
+                    list.innerHTML = "";
+                    let rank = 1;
+                    
+                    snapshot.forEach((doc) => {
+                        let data = doc.data();
+                        let rowClass = "player-row";
+                        let prefix = "";
+
+                        if (rank <= 3) rowClass += " top-player";
+                        if (rank === 1) prefix = "👑 ";
+                        
+                        if (doc.id === currentUser.uid) {
+                            rowClass += " me";
+                            prefix = "👉 (Tum) " + prefix;
+                        }
+
+                        list.innerHTML += `
+                            <div class="${rowClass}">
+                                <span>${prefix}${rank}. ${data.name}</span>
+                                <span>${data.coins} Coins</span>
+                            </div>
+                        `;
+                        rank++;
+                    });
+                });
+        }
+
+        // Custom Notification Pop-up Utility
+        function showNotification(msg, isWrong) {
+            const popup = document.getElementById('popup-notification');
+            popup.innerText = msg;
+            popup.style.display = 'block';
+            if (isWrong) {
+                popup.classList.add('wrong');
+            } else {
+                popup.classList.remove('wrong');
+            }
+            setTimeout(() => { popup.style.display = 'none'; }, 2500);
+        }
+    </script>
+</body>
+</html>
