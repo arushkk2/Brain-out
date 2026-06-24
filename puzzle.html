@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brain Rush - Puzzle Tournament</title>
     
+    <!-- Firebase Core, Auth and Database SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -21,9 +22,11 @@
             padding: 20px;
             min-height: 100vh;
         }
-        #auth-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 80vh; text-align: center; }
-        .auth-card { background: #161925; padding: 40px; border-radius: 20px; border: 1px solid #3f37c9; box-shadow: 0 0 25px rgba(63, 55, 201, 0.3); max-width: 400px; width: 100%; }
-        .auth-btn { background: #fff; color: #000; padding: 12px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 25px; border: none; display: flex; align-items: center; gap: 10px; font-size: 16px; }
+        #auth-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 80vh; text-align: center; width: 100%; }
+        .auth-card { background: #161925; padding: 30px 20px; border-radius: 20px; border: 1px solid #3f37c9; box-shadow: 0 0 25px rgba(63, 55, 201, 0.3); max-width: 400px; width: 100%; }
+        .input-field { width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid #3f37c9; background: #0d0e15; color: #fff; font-size: 16px; outline: none; }
+        .input-field:focus { border-color: #00f2fe; }
+        .auth-btn-group { display: flex; gap: 10px; margin-top: 20px; }
         #game-screen { display: none; width: 100%; max-width: 500px; }
         .header-stats { background: #161925; padding: 15px; border-radius: 15px; border: 1px solid #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.2); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .coin-box { font-size: 20px; font-weight: bold; color: #ffd700; display: flex; align-items: center; gap: 5px; }
@@ -35,7 +38,8 @@
         .answer-input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #3f37c9; background: #0d0e15; color: #fff; font-size: 18px; text-align: center; outline: none; margin-bottom: 15px; }
         .answer-input:focus { border-color: #00f2fe; }
         .btn { width: 100%; padding: 12px; background: linear-gradient(45deg, #3f37c9, #00f2fe); border: none; border-radius: 10px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; }
-        .custom-popup { display: none; position: fixed; top: 20px; background: #10b981; color: white; padding: 15px 30px; border-radius: 10px; font-weight: bold; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); z-index: 100; }
+        .btn-secondary { background: #222533; color: #fff; border: 1px solid #3f37c9; }
+        .custom-popup { display: none; position: fixed; top: 20px; background: #10b981; color: white; padding: 15px 30px; border-radius: 10px; font-weight: bold; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); z-index: 100; text-align: center; max-width: 90%; }
         .custom-popup.wrong { background: #ef4444; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); }
         .leaderboard-box { background: #111420; border-radius: 15px; padding: 15px; border: 1px solid #222533; }
         .leaderboard-title { font-size: 16px; color: #ff007f; margin-bottom: 10px; display: flex; justify-content: space-between; }
@@ -49,19 +53,24 @@
 
     <div id="popup-notification" class="custom-popup">Notification</div>
 
+    <!-- AUTH SCREEN (USERNAME & PASSWORD) -->
     <div id="auth-screen">
         <div class="auth-card">
-            <h1 style="color: #00f2fe; margin-bottom: 10px;">Brain Rush 🧠</h1>
-            <p style="color: #a0a5c1;">Puzzles solve karo, Leaderboard top karo aur Crown jeeto!</p>
-            <center>
-                <button class="auth-btn" onclick="loginWithGoogle()">
-                    <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/logo_googleg_color_web_24dp.png" width="20">
-                    Sign in with Google
-                </button>
-            </center>
+            <h1 style="color: #00f2fe; margin-bottom: 5px;">Brain Rush 🧠</h1>
+            <p style="color: #a0a5c1; font-size: 14px; margin-bottom: 20px;">Apna account banao aur khelna shuru karo!</p>
+            
+            <input type="text" id="auth-username" class="input-field" placeholder="Apna Naam (e.g. Rahul)">
+            <input type="email" id="auth-email" class="input-field" placeholder="Koshish karein Email daalein">
+            <input type="password" id="auth-password" class="input-field" placeholder="Koi bhi 6-digit Password">
+            
+            <div class="auth-btn-group">
+                <button class="btn" onclick="handleSignUp()">Sign Up</button>
+                <button class="btn btn-secondary" onclick="handleLogin()">Login</button>
+            </div>
         </div>
     </div>
 
+    <!-- MAIN GAME SCREEN -->
     <div id="game-screen">
         <div class="header-stats">
             <div class="pool-box">Room Pool: <span id="pool-id">Group_No_1</span></div>
@@ -75,6 +84,7 @@
             <input type="text" id="user-answer" class="answer-input" placeholder="Apna jawab likho...">
             <button class="btn" onclick="checkAnswer()">Submit Answer</button>
 
+            <!-- Lock Screen for Ads -->
             <div class="lock-screen" id="ad-lock-screen">
                 <h2 style="color: #ff007f;">🔒 10 Puzzles Completed!</h2>
                 <p style="margin: 15px 0; color: #a0a5c1;">Agle 10 puzzles unlock karne ke liye ek ad dekhein.</p>
@@ -82,6 +92,7 @@
             </div>
         </div>
 
+        <!-- Leaderboard -->
         <div class="leaderboard-box">
             <div class="leaderboard-title">
                 <span>🏆 Pool Leaderboard (Top 5 Wins)</span>
@@ -89,6 +100,7 @@
             </div>
             <div id="leaderboard-list"></div>
         </div>
+        <center><button class="btn btn-secondary" style="margin-top:20px; width:auto; padding:8px 20px; font-size:14px;" onclick="auth.signOut()">Logout</button></center>
     </div>
 
     <script>
@@ -119,10 +131,42 @@
         let currentPuzzleIndex = 0;
         let myCoins = 0;
         let solvedCount = 0;
+        let globalUsername = "";
 
-        function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch(err => showNotification("Login Failed: " + err.message, true));
+        // Sign Up Function
+        function handleSignUp() {
+            let name = document.getElementById('auth-username').value.trim();
+            let email = document.getElementById('auth-email').value.trim();
+            let password = document.getElementById('auth-password').value.trim();
+
+            if(!name || !email || !password) { showNotification("Saari fields bharo bhai!", true); return; }
+            if(password.length < 6) { showNotification("Password kam se kam 6 digit ka rakho.", true); return; }
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    let user = userCredential.user;
+                    rtdb.ref("users/" + user.uid).set({
+                        uid: user.uid,
+                        name: name,
+                        coins: 0,
+                        currentPuzzle: 0,
+                        solvedCount: 0
+                    });
+                    showNotification("Registration Successful! 🎉", false);
+                })
+                .catch(err => showNotification(err.message, true));
+        }
+
+        // Login Function
+        function handleLogin() {
+            let email = document.getElementById('auth-email').value.trim();
+            let password = document.getElementById('auth-password').value.trim();
+
+            if(!email || !password) { showNotification("Email aur Password daalo!", true); return; }
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => { showNotification("Welcome Back! 🕹️", false); })
+                .catch(err => showNotification("Login Failed: Galat details.", true));
         }
 
         auth.onAuthStateChanged((user) => {
@@ -138,21 +182,13 @@
         });
 
         function loadUserData() {
-            const userRef = rtdb.ref("users/" + currentUser.uid);
-            userRef.once("value", (snapshot) => {
+            rtdb.ref("users/" + currentUser.uid).once("value", (snapshot) => {
                 if (snapshot.exists()) {
                     let data = snapshot.val();
                     myCoins = data.coins || 0;
                     currentPuzzleIndex = data.currentPuzzle || 0;
                     solvedCount = data.solvedCount || 0;
-                } else {
-                    userRef.set({
-                        uid: currentUser.uid,
-                        name: currentUser.displayName,
-                        coins: 0,
-                        currentPuzzle: 0,
-                        solvedCount: 0
-                    });
+                    globalUsername = data.name || "Player";
                 }
                 document.getElementById('my-coins').innerText = myCoins;
                 loadPuzzle();
@@ -213,7 +249,7 @@
                 let players = [];
                 
                 snapshot.forEach((child) => { players.push(child.val()); });
-                players.reverse(); // Descending order
+                players.reverse();
 
                 players.forEach((data, index) => {
                     let rank = index + 1;
@@ -226,7 +262,7 @@
 
                     list.innerHTML += `
                         <div class="${rowClass}">
-                            <span>${prefix}${rank}. ${data.name}</span>
+                            <span>${prefix}${rank}. ${data.name || 'Anonymous'}</span>
                             <span>${data.coins} Coins</span>
                         </div>
                     `;
