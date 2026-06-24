@@ -14,97 +14,224 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0d0e15;
+            background: #090a0f;
             color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
             min-height: 100vh;
+            padding: 15px;
         }
-        #auth-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 80vh; text-align: center; width: 100%; }
-        .auth-card { background: #161925; padding: 30px 20px; border-radius: 20px; border: 1px solid #3f37c9; box-shadow: 0 0 25px rgba(63, 55, 201, 0.3); max-width: 400px; width: 100%; }
-        .input-field { width: 100%; padding: 12px; margin-top: 10px; border-radius: 10px; border: 1px solid #3f37c9; background: #0d0e15; color: #fff; font-size: 16px; outline: none; }
-        .input-field:focus { border-color: #00f2fe; }
-        .auth-btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        #game-screen { display: none; width: 100%; max-width: 500px; }
-        .header-stats { background: #161925; padding: 15px; border-radius: 15px; border: 1px solid #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.2); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .coin-box { font-size: 20px; font-weight: bold; color: #ffd700; display: flex; align-items: center; gap: 5px; }
-        .coin-icon { width: 24px; height: 24px; background: #ffd700; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #ffd700; }
-        .pool-box { font-size: 14px; color: #a0a5c1; }
-        .game-container { background: #161925; border-radius: 20px; padding: 25px; text-align: center; border: 1px solid #3f37c9; margin-bottom: 20px; position: relative; }
-        .puzzle-title { font-size: 18px; color: #00f2fe; margin-bottom: 5px; }
-        .puzzle-text { font-size: 22px; font-weight: bold; margin: 20px 0; min-height: 60px; }
-        .answer-input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #3f37c9; background: #0d0e15; color: #fff; font-size: 18px; text-align: center; outline: none; margin-bottom: 15px; }
-        .answer-input:focus { border-color: #00f2fe; }
-        .btn { width: 100%; padding: 12px; background: linear-gradient(45deg, #3f37c9, #00f2fe); border: none; border-radius: 10px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; }
-        .btn-secondary { background: #222533; color: #fff; border: 1px solid #3f37c9; }
-        .custom-popup { display: none; position: fixed; top: 20px; background: #10b981; color: white; padding: 15px 30px; border-radius: 10px; font-weight: bold; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); z-index: 100; text-align: center; max-width: 90%; }
-        .custom-popup.wrong { background: #ef4444; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); }
-        .leaderboard-box { background: #111420; border-radius: 15px; padding: 15px; border: 1px solid #222533; }
-        .leaderboard-title { font-size: 16px; color: #ff007f; margin-bottom: 10px; display: flex; justify-content: space-between; }
-        .player-row { display: flex; justify-content: space-between; padding: 8px 5px; border-bottom: 1px solid #1c1f30; font-size: 14px; }
+
+        /* Common Glowing Elements */
+        .neon-border-pink { border: 1px solid #ff007f; box-shadow: 0 0 15px rgba(255, 0, 127, 0.2); }
+        .neon-border-blue { border: 1px solid #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.2); }
+        
+        /* AUTH SCREEN */
+        #auth-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 85vh; width: 100%; }
+        .auth-card { background: #121420; padding: 30px 20px; border-radius: 20px; text-align: center; max-width: 400px; width: 100%; }
+        .input-field { width: 100%; padding: 12px; margin-top: 12px; border-radius: 10px; border: 1px solid #3f37c9; background: #0d0e15; color: #fff; font-size: 16px; outline: none; }
+        .input-field:focus { border-color: #00f2fe; box-shadow: 0 0 10px rgba(0, 242, 254, 0.5); }
+        
+        /* DASHBOARD SCREEN */
+        #dashboard-screen { display: none; width: 100%; max-width: 480px; }
+        .user-profile-card { background: linear-gradient(135deg, #161925, #0d0e15); padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: center; }
+        .stats-grid { display: flex; justify-content: space-around; margin-top: 15px; }
+        .stat-item { background: #1f2336; padding: 10px 15px; border-radius: 12px; width: 45%; }
+        .stat-val { font-size: 20px; font-weight: bold; color: #00f2fe; }
+
+        /* Banner Ad Space Placeholder */
+        .banner-ad-space { width: 100%; height: 60px; background: #1a1d2e; border: 1px dashed #555; border-radius: 10px; display: flex; justify-content: center; align-items: center; color: #777; font-size: 12px; margin-bottom: 20px; }
+
+        /* Menu Buttons */
+        .menu-btn { width: 100%; padding: 15px; margin-bottom: 15px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s; }
+        .menu-btn:active { transform: scale(0.98); }
+        .btn-play { background: linear-gradient(45deg, #10b981, #059669); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+        .btn-leaderboard { background: linear-gradient(45deg, #ff007f, #7928ca); box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); }
+        .btn-refer { background: linear-gradient(45deg, #ffb703, #fb8500); box-shadow: 0 0 15px rgba(255, 183, 3, 0.4); }
+        .btn-guide { background: linear-gradient(45deg, #00f2fe, #4cc9f0); box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); color: #000; }
+
+        /* GAME PLAY SCREEN */
+        #game-screen { display: none; width: 100%; max-width: 480px; }
+        .game-header { display: flex; justify-content: space-between; align-items: center; background: #161925; padding: 12px 15px; border-radius: 15px; margin-bottom: 15px; }
+        .hearts-box { color: #ef4444; font-size: 20px; letter-spacing: 2px; }
+        .booster-badge { background: #ffb703; color: #000; padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; display: none; margin-top: 5px; animation: pulse 1s infinite; }
+
+        .game-card { background: #161925; border-radius: 20px; padding: 25px; text-align: center; position: relative; }
+        .puzzle-text { font-size: 22px; font-weight: bold; margin: 25px 0; min-height: 60px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
+        
+        /* Sub Sections (Modals/Views) */
+        .sub-section { display: none; background: #161925; border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        .section-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #00f2fe; display: flex; justify-content: space-between; align-items: center; }
+        .back-dashboard-btn { background: none; border: 1px solid #555; color: #aaa; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; margin-bottom: 15px; }
+
+        /* Custom Popup Alerts */
+        .custom-popup { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 15px 30px; border-radius: 10px; font-weight: bold; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); z-index: 100; text-align: center; width: 85%; max-width: 380px; }
+        .custom-popup.wrong { background: #ef4444; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); animation: shake 0.3s; }
+
+        /* Player Rows */
+        .player-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222533; font-size: 14px; }
         .player-row.top-player { color: #ffd700; font-weight: bold; }
         .player-row.me { background: rgba(0, 242, 254, 0.15); border-radius: 5px; border-left: 3px solid #00f2fe; }
-        .lock-screen { display: none; position: absolute; background: rgba(13, 14, 21, 0.98); top: 0; left: 0; width: 100%; height: 100%; z-index: 10; flex-direction: column; justify-content: center; align-items: center; padding: 20px; border-radius: 20px; }
+
+        /* Lock Screen Overlay */
+        .lock-overlay { display: none; position: absolute; background: rgba(10, 11, 18, 0.98); top: 0; left: 0; width: 100%; height: 100%; z-index: 20; flex-direction: column; justify-content: center; align-items: center; padding: 20px; border-radius: 20px; text-align: center; }
+
+        /* Animations */
+        @keyframes shake { 0%, 100% { transform: translateX(-50%); } 20%, 60% { transform: translateX(-55%); } 40%, 80% { transform: translateX(-45%); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
     </style>
 </head>
 <body>
 
-    <div id="popup-notification" class="custom-popup">Notification</div>
+    <!-- Notification Popup -->
+    <div id="popup-notification" class="custom-popup">Alert</div>
 
-    <!-- AUTH SCREEN (USERNAME & PASSWORD) -->
+    <!-- 1. AUTH SCREEN -->
     <div id="auth-screen">
-        <div class="auth-card">
-            <h1 style="color: #00f2fe; margin-bottom: 5px;">Brain Rush 🧠</h1>
-            <p style="color: #a0a5c1; font-size: 14px; margin-bottom: 20px;">Apna account banao aur khelna shuru karo!</p>
+        <div class="auth-card neon-border-blue">
+            <h1 style="color: #00f2fe; margin-bottom: 5px; font-size: 32px;">Brain Rush 🧠</h1>
+            <p style="color: #a0a5c1; font-size: 14px;">Log in karke direct tournament me shuru karein!</p>
             
-            <input type="text" id="auth-username" class="input-field" placeholder="Apna Naam (e.g. Rahul)">
-            <input type="email" id="auth-email" class="input-field" placeholder="Koshish karein Email daalein">
-            <input type="password" id="auth-password" class="input-field" placeholder="Koi bhi 6-digit Password">
+            <input type="text" id="auth-username" class="input-field" placeholder="Apna Naam (e.g., Arush)">
+            <input type="email" id="auth-email" class="input-field" placeholder="Email id daalein">
+            <input type="password" id="auth-password" class="input-field" placeholder="6-digit Password">
             
-            <div class="auth-btn-group">
-                <button class="btn" onclick="handleSignUp()">Sign Up</button>
-                <button class="btn btn-secondary" onclick="handleLogin()">Login</button>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="menu-btn btn-play" style="margin:0; padding:12px;" onclick="handleSignUp()">Register</button>
+                <button class="menu-btn btn-guide" style="margin:0; padding:12px;" onclick="handleLogin()">Login</button>
             </div>
         </div>
     </div>
 
-    <!-- MAIN GAME SCREEN -->
+    <!-- 2. GRAND MAIN DASHBOARD -->
+    <div id="dashboard-screen">
+        <div class="user-profile-card neon-border-blue">
+            <h2 style="color: #fff;" id="dash-welcome">Welcome, Player! 👋</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <p style="color:#a0a5c1; font-size:12px;">Total Coins</p>
+                    <div class="stat-val" style="color: #ffd700;">🪙 <span id="dash-coins">0</span></div>
+                </div>
+                <div class="stat-item">
+                    <p style="color:#a0a5c1; font-size:12px;">Puzzles Solved</p>
+                    <div class="stat-val" id="dash-solved">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Banner Ad Space Placement -->
+        <div class="banner-ad-space">📺 [BANNER ADVERTISEMENT RUNNING HERE]</div>
+
+        <!-- Main Dashboard Buttons -->
+        <button class="menu-btn btn-play" onclick="switchView('game-screen')">🕹️ Play Tournament</button>
+        <button class="menu-btn btn-leaderboard" onclick="openLeaderboardView()">🏆 Global Leaderboard</button>
+        <button class="menu-btn btn-refer" onclick="openReferView()">🎁 Refer & Earn (50 Coins)</button>
+        <button class="menu-btn btn-guide" onclick="openGuideView()">📖 How to Play / Guide</button>
+
+        <center><button class="input-field" style="width:auto; padding:8px 25px; margin-top:10px; background:#222; border:1px solid #444;" onclick="auth.signOut()">🚪 Logout Account</button></center>
+    </div>
+
+    <!-- 3. GLOBAL LEADERBOARD SECTION -->
+    <div id="leaderboard-section" class="sub-section neon-border-pink" style="max-width:480px; width:100%;">
+        <button class="back-dashboard-btn" onclick="switchView('dashboard-screen')">⬅️ Back to Menu</button>
+        <div class="section-header"><span>🏆 Top 5 Players Rank</span> <span style="font-size:12px; color:#aaa;">Live Updates</span></div>
+        <div id="leaderboard-list"></div>
+    </div>
+
+    <!-- 4. REFER & EARN SECTION -->
+    <div id="refer-section" class="sub-section" style="max-width:480px; width:100%; border:1px solid #ffb703;">
+        <button class="back-dashboard-btn" onclick="switchView('dashboard-screen')">⬅️ Back to Menu</button>
+        <div class="section-header">🎁 Invite Friends & Earn</div>
+        <p style="font-size:14px; margin-bottom:15px; color:#aaa;">Apna refer code dosto ko bhejo. Jab wo use karenge, dono ko 50 Coins milenge!</p>
+        
+        <div style="background:#0d0e15; padding:12px; border-radius:10px; text-align:center; font-size:18px; font-weight:bold; color:#ffb703; border:1px dashed #ffb703; margin-bottom:20px;">
+            Your Code: <span id="my-refer-code">LOADING</span>
+        </div>
+
+        <input type="text" id="input-refer-code" class="input-field" placeholder="Apne dost ka refer code daalo">
+        <button class="menu-btn btn-refer" style="margin-top:10px; padding:12px;" onclick="claimReferral()">Claim 50 Coins Reward</button>
+    </div>
+
+    <!-- 5. HOW TO PLAY GUIDE SECTION -->
+    <div id="guide-section" class="sub-section neon-border-blue" style="max-width:480px; width:100%;">
+        <button class="back-dashboard-btn" onclick="switchView('dashboard-screen')">⬅️ Back to Menu</button>
+        <div class="section-header">📖 Game Rules & Guide</div>
+        <div style="font-size:14px; line-height:1.6; color:#d1d5db;">
+            <p style="margin-bottom:10px;">🟢 **Sahi Jawab:** Har puzzle solve karne par **+3 Coins** milenge.</p>
+            <p style="margin-bottom:10px; color:#ef4444;">🔴 **Wrong Answers:** Aapke paas 3 Lives (❤️) hoti hain. **3 baar galat** jawab dene par **1 Coin kat (deduct) jayega**.</p>
+            <p style="margin-bottom:10px; color:#ffb703;">🚀 **Booster Mode:** Game screen par Reward Ad dekh kar agle 5 round ke liye har answer par **+1 Extra Coin** paayein!</p>
+            <p style="margin-bottom:10px; color:#00f2fe;">🔒 **10 Puzzle Block:** Har 10 round baad ya to ad dekhein ya 1-minute wait karein unlock karne ke liye.</p>
+        </div>
+    </div>
+
+    <!-- 6. MAIN GAME PLAY SCREEN -->
     <div id="game-screen">
-        <div class="header-stats">
-            <div class="pool-box">Room Pool: <span id="pool-id">Group_No_1</span></div>
-            <div class="coin-box"><span class="coin-icon"></span> <span id="my-coins">0</span></div>
+        <button class="back-dashboard-btn" onclick="switchView('dashboard-screen')">⬅️ Back to Menu</button>
+        
+        <div class="game-header neon-border-blue">
+            <div>
+                <div class="hearts-box" id="hearts-display">❤️❤️❤️</div>
+                <div class="booster-badge" id="booster-status">🚀 Booster Active (+1 Coin)</div>
+            </div>
+            <div style="text-align:right;">
+                <span style="color:#ffb703; font-weight:bold; font-size:18px;">🪙 <span id="game-coins">0</span></span>
+            </div>
         </div>
 
-        <div class="game-container">
-            <div class="puzzle-title">Puzzle #<span id="puzzle-number">1</span>/10</div>
-            <div class="puzzle-text" id="puzzle-question">Loading...</div>
+        <div class="game-card neon-border-blue">
+            <div style="color:#00f2fe; font-size:14px; font-weight:bold;">Puzzle #<span id="puzzle-number">1</span>/10</div>
+            <div class="puzzle-text" id="puzzle-question">Loading puzzle question...</div>
             
-            <input type="text" id="user-answer" class="answer-input" placeholder="Apna jawab likho...">
-            <button class="btn" onclick="checkAnswer()">Submit Answer</button>
+            <input type="text" id="user-answer" class="answer-input input-field" style="text-align:center; font-size:18px; margin-bottom:15px;" placeholder="Apna jawab likho...">
+            
+            <button class="menu-btn btn-play" style="padding:12px; font-size:16px;" onclick="checkAnswer()">Submit Answer</button>
+            
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="menu-btn btn-guide" style="margin:0; padding:10px; font-size:14px;" onclick="triggerHint()">💡 Show Hint (Ad)</button>
+                <button class="menu-btn btn-refer" id="booster-btn" style="margin:0; padding:10px; font-size:14px;" onclick="triggerBooster()">🚀 Booster Ad (+1 Coin)</button>
+            </div>
 
-            <!-- Lock Screen for Ads -->
-            <div class="lock-screen" id="ad-lock-screen">
-                <h2 style="color: #ff007f;">🔒 10 Puzzles Completed!</h2>
-                <p style="margin: 15px 0; color: #a0a5c1;">Agle 10 puzzles unlock karne ke liye ek ad dekhein.</p>
-                <button class="btn" style="background: linear-gradient(45deg, #ff007f, #ff758c);" onclick="watchAdToUnlock()">Watch Ad to Continue</button>
+            <!-- Lock Screen overlay for 10 puzzles block -->
+            <div class="lock-overlay" id="block-screen">
+                <h2 style="color: #ff007f; margin-bottom:10px;">🔒 10 Puzzles Completed!</h2>
+                <p style="color:#a0a5c1; font-size:14px; margin-bottom:20px;">Agle 10 puzzles chalane ke liye choose karein:</p>
+                
+                <button class="menu-btn btn-play" style="padding:12px;" onclick="unlockViaAd()">📺 Watch Ad to Continue</button>
+                <p style="margin:10px 0; color:#555;">--- YA ---</p>
+                <button class="menu-btn btn-guide" id="timer-btn" style="padding:12px; background:#222; border:1px solid #444; color:#fff;" disabled>⏳ Wait <span id="countdown-timer">60</span>s</button>
             </div>
         </div>
-
-        <!-- Leaderboard -->
-        <div class="leaderboard-box">
-            <div class="leaderboard-title">
-                <span>🏆 Pool Leaderboard (Top 5 Wins)</span>
-                <span style="color: #a0a5c1; font-size:12px;">Resets in: 2 Days</span>
-            </div>
-            <div id="leaderboard-list"></div>
-        </div>
-        <center><button class="btn btn-secondary" style="margin-top:20px; width:auto; padding:8px 20px; font-size:14px;" onclick="auth.signOut()">Logout</button></center>
     </div>
 
+    <!-- Audio Synth Pre-loads for Game Sounds -->
     <script>
-        // Firebase Config
+        // Sound effects generated using Web Audio API (No files needed!)
+        function playSound(type) {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            if (type === 'success') {
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+                osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1); // A5
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                osc.start(); osc.stop(ctx.currentTime + 0.25);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(80, ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                osc.start(); osc.stop(ctx.currentTime + 0.2);
+            }
+        }
+    </script>
+
+    <!-- Main Core Firebase Game Script -->
+    <script>
+        // Firebase Config Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB67TrXlrvp69dWmiMThTRqnAq41ernlG8",
             authDomain: "puzzle-game-390ed.firebaseapp.com",
@@ -120,104 +247,147 @@
         const auth = firebase.auth();
         const rtdb = firebase.database();
 
+        // 100 Puzzles Pool Data Array
         const puzzles = [
-            { q: "Mummy ka ulta kya hota hai? (Hint: Papa nahi)", a: "ymmum" },
-            { q: "Wo kya hai jo upar jata hai par niche kabhi nahi aata?", a: "umar" },
-            { q: "10 + 20 * 0 + 5 = ?", a: "15" },
-            { q: "Aisa kaun sa phal hai jise hum khareed nahi sakte?", a: "mehnat ka phal" }
+            { q: "Mummy ka ulta kya hota hai? (Hint: Papa nahi)", a: "ymmum", h: "Ulta spelling likho!" },
+            { q: "Wo kya hai jo upar jata hai par niche kabhi nahi aata?", a: "umar", h: "Aapki age..." },
+            { q: "10 + 20 * 0 + 5 = ?", a: "15", h: "BODMAS rule lagaen, pehle multiply karein!" },
+            { q: "Aisa kaun sa phal hai jise hum khareed nahi sakte?", a: "mehnat ka phal", h: "Koshish/Kamyabi ka phal" }
         ];
 
         let currentUser = null;
-        let currentPuzzleIndex = 0;
         let myCoins = 0;
+        let currentPuzzleIndex = 0;
         let solvedCount = 0;
-        let globalUsername = "";
+        let lives = 3;
+        let boosterRoundsLeft = 0;
+        let referCodeUsed = false;
 
-        // Sign Up Function
+        // View Navigator Manager
+        function switchView(viewId) {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('dashboard-screen').style.display = 'none';
+            document.getElementById('leaderboard-section').style.display = 'none';
+            document.getElementById('refer-section').style.display = 'none';
+            document.getElementById('guide-section').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'none';
+
+            document.getElementById(viewId).style.display = 'block';
+        }
+
+        // Email Authentication Systems
         function handleSignUp() {
             let name = document.getElementById('auth-username').value.trim();
             let email = document.getElementById('auth-email').value.trim();
             let password = document.getElementById('auth-password').value.trim();
 
             if(!name || !email || !password) { showNotification("Saari fields bharo bhai!", true); return; }
-            if(password.length < 6) { showNotification("Password kam se kam 6 digit ka rakho.", true); return; }
+            if(password.length < 6) { showNotification("Password kam se kam 6 characters ka rakho.", true); return; }
 
             auth.createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     let user = userCredential.user;
+                    let generatedCode = name.toLowerCase().replace(/\s+/g, '') + Math.floor(1000 + Math.random() * 9000);
+                    
                     rtdb.ref("users/" + user.uid).set({
                         uid: user.uid,
                         name: name,
-                        coins: 0,
+                        coins: 10, // 10 welcome coins bonus
                         currentPuzzle: 0,
-                        solvedCount: 0
+                        solvedCount: 0,
+                        referCode: generatedCode,
+                        referCodeUsed: false
                     });
-                    showNotification("Registration Successful! 🎉", false);
+                    showNotification("Registration ekdam successful! 🎉", false);
                 })
                 .catch(err => showNotification(err.message, true));
         }
 
-        // Login Function
         function handleLogin() {
             let email = document.getElementById('auth-email').value.trim();
             let password = document.getElementById('auth-password').value.trim();
 
-            if(!email || !password) { showNotification("Email aur Password daalo!", true); return; }
+            if(!email || !password) { showNotification("Email aur Password dono daalo!", true); return; }
 
             auth.signInWithEmailAndPassword(email, password)
                 .then(() => { showNotification("Welcome Back! 🕹️", false); })
-                .catch(err => showNotification("Login Failed: Galat details.", true));
+                .catch(err => showNotification("Login Failed: Details galat hain.", true));
         }
 
+        // Auth States Check listener
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('game-screen').style.display = 'block';
+                switchView('dashboard-screen');
                 loadUserData();
             } else {
-                document.getElementById('auth-screen').style.display = 'flex';
-                document.getElementById('game-screen').style.display = 'none';
+                switchView('auth-screen');
             }
         });
 
+        // Pull Realtime Sync Profile States
         function loadUserData() {
-            rtdb.ref("users/" + currentUser.uid).once("value", (snapshot) => {
+            rtdb.ref("users/" + currentUser.uid).on("value", (snapshot) => {
                 if (snapshot.exists()) {
                     let data = snapshot.val();
                     myCoins = data.coins || 0;
                     currentPuzzleIndex = data.currentPuzzle || 0;
                     solvedCount = data.solvedCount || 0;
-                    globalUsername = data.name || "Player";
+                    referCodeUsed = data.referCodeUsed || false;
+
+                    document.getElementById('dash-welcome').innerText = `Welcome, ${data.name || 'Player'}! 👋`;
+                    document.getElementById('dash-coins').innerText = myCoins;
+                    document.getElementById('dash-solved').innerText = solvedCount;
+                    document.getElementById('game-coins').innerText = myCoins;
+                    document.getElementById('my-refer-code').innerText = data.referCode || "N/A";
+
+                    loadPuzzle();
                 }
-                document.getElementById('my-coins').innerText = myCoins;
-                loadPuzzle();
-                listenToLeaderboard();
             });
         }
 
+        // Load Puzzle Engine logic
         function loadPuzzle() {
-            if (solvedCount >= 10) {
-                document.getElementById('ad-lock-screen').style.display = 'flex';
+            // Check if 10 round milestone lock active
+            if (solvedCount > 0 && solvedCount % 10 === 0) {
+                triggerBlockOverlay();
                 return;
             }
+
+            document.getElementById('block-screen').style.display = 'none';
             let p = puzzles[currentPuzzleIndex % puzzles.length];
             document.getElementById('puzzle-question').innerText = p.q;
             document.getElementById('puzzle-number').innerText = (solvedCount % 10) + 1;
             document.getElementById('user-answer').value = "";
+            updateHeartsDisplay();
         }
 
+        function updateHeartsDisplay() {
+            let heartStr = "";
+            for(let i=0; i<lives; i++) heartStr += "❤️";
+            document.getElementById('hearts-display').innerText = heartStr || "💔 No Lives";
+        }
+
+        // Action Evaluator
         function checkAnswer() {
             let input = document.getElementById('user-answer').value.trim().toLowerCase();
             let p = puzzles[currentPuzzleIndex % puzzles.length];
 
             if (input === p.a) {
-                myCoins += 3;
+                let reward = 3;
+                if (boosterRoundsLeft > 0) {
+                    reward += 1;
+                    boosterRoundsLeft--;
+                    if(boosterRoundsLeft === 0) document.getElementById('booster-status').style.display = 'none';
+                }
+
+                myCoins += reward;
                 solvedCount++;
                 currentPuzzleIndex++;
-                
-                document.getElementById('my-coins').innerText = myCoins;
-                showNotification("Sahi Jawab! +3 Coins 🎉", false);
+                lives = 3;
+
+                playSound('success');
+                showNotification(`Sahi Jawab! +${reward} Coins 🎉`, false);
 
                 rtdb.ref("users/" + currentUser.uid).update({
                     coins: myCoins,
@@ -225,29 +395,111 @@
                     solvedCount: solvedCount
                 });
 
-                loadPuzzle();
             } else {
-                showNotification("Galat Jawab! Dobara koshish karo.", true);
+                lives--;
+                playSound('wrong');
+                
+                if (lives === 0) {
+                    myCoins = Math.max(0, myCoins - 1);
+                    lives = 3;
+                    showNotification("3 Baar Galat! -1 Coin Deducted ❌", true);
+                } else {
+                    showNotification(`Galat Jawab! ${lives} lives bachi hain.`, true);
+                }
+
+                rtdb.ref("users/" + currentUser.uid).update({ coins: myCoins });
+                updateHeartsDisplay();
             }
         }
 
-        function watchAdToUnlock() {
-            showNotification("Ad chal raha hai...", false);
+        // Ads & Boosters Logic Simulations
+        function triggerHint() {
+            showNotification("📺 Reward Ad Chal raha hai (Hint ke liye)...", false);
             setTimeout(() => {
-                solvedCount = 0;
-                rtdb.ref("users/" + currentUser.uid).update({ solvedCount: 0 });
-                document.getElementById('ad-lock-screen').style.display = 'none';
-                showNotification("Game Unlocked!", false);
-                loadPuzzle();
+                let p = puzzles[currentPuzzleIndex % puzzles.length];
+                showNotification(`💡 HINT: ${p.h}`, false);
+            }, 2500);
+        }
+
+        function triggerBooster() {
+            showNotification("📺 Video Ad loading booster power up...", false);
+            setTimeout(() => {
+                boosterRoundsLeft = 5;
+                document.getElementById('booster-status').style.display = 'block';
+                showNotification("🚀 Booster Active! Agle 5 puzzles tak milega +1 Extra Coin!", false);
             }, 3000);
         }
 
-        function listenToLeaderboard() {
+        // 10 Puzzle Completion block screen engine
+        function triggerBlockOverlay() {
+            document.getElementById('block-screen').style.display = 'flex';
+            let timerBtn = document.getElementById('timer-btn');
+            let timeSpan = document.getElementById('countdown-timer');
+            let timeLeft = 60;
+
+            timerBtn.disabled = true;
+            timeSpan.innerText = timeLeft;
+
+            let countdown = setInterval(() => {
+                timeLeft--;
+                timeSpan.innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(countdown);
+                    timerBtn.disabled = false;
+                    timerBtn.innerText = "✅ Click to Unlock Free";
+                    timerBtn.onclick = function() {
+                        bypassLock();
+                    }
+                }
+            }, 1000);
+        }
+
+        function unlockViaAd() {
+            showNotification("📺 Ad complete chal raha hai...", false);
+            setTimeout(() => {
+                bypassLock();
+            }, 3000);
+        }
+
+        function bypassLock() {
+            solvedCount++; 
+            rtdb.ref("users/" + currentUser.uid).update({ solvedCount: solvedCount });
+            document.getElementById('block-screen').style.display = 'none';
+            showNotification("🔓 Stage Unlocked! Safe to Play.", false);
+        }
+
+        // Referral Code Module Engine
+        function claimReferral() {
+            if(referCodeUsed) { showNotification("Aap pehle hi refer code use kar chuke hain!", true); return; }
+            let inputtedCode = document.getElementById('input-refer-code').value.trim();
+            
+            if(!inputtedCode) { showNotification("Code daalo bhai!", true); return; }
+
+            rtdb.ref("users").orderByChild("referCode").equalTo(inputtedCode).once("value", (snapshot) => {
+                if(snapshot.exists()) {
+                    let opponentUid = Object.keys(snapshot.val())[0];
+                    if(opponentUid === currentUser.uid) { showNotification("Aap apna hi code nahi daal sakte!", true); return; }
+
+                    let opData = snapshot.val()[opponentUid];
+                    rtdb.ref("users/" + opponentUid).update({ coins: (opData.coins || 0) + 50 });
+
+                    myCoins += 50;
+                    rtdb.ref("users/" + currentUser.uid).update({ coins: myCoins, referCodeUsed: true });
+
+                    showNotification("Congratulations! Dono ko mila 50 Coins 🎁", false);
+                } else {
+                    showNotification("Galat Refer Code! Dubara check karein.", true);
+                }
+            });
+        }
+
+        // Global Sub-section Openers
+        function openLeaderboardView() {
+            switchView('leaderboard-section');
             rtdb.ref("users").orderByChild("coins").limitToLast(5).on("value", (snapshot) => {
                 const list = document.getElementById('leaderboard-list');
                 list.innerHTML = "";
                 let players = [];
-                
                 snapshot.forEach((child) => { players.push(child.val()); });
                 players.reverse();
 
@@ -262,21 +514,25 @@
 
                     list.innerHTML += `
                         <div class="${rowClass}">
-                            <span>${prefix}${rank}. ${data.name || 'Anonymous'}</span>
-                            <span>${data.coins} Coins</span>
-                        </div>
-                    `;
+                            <span>${prefix}${rank}. ${data.name || 'Player'}</span>
+                            <span style="font-size:12px; color:#aaa;">${data.solvedCount || 0} Solved</span>
+                            <span style="color:#ffd700; font-weight:bold;">🪙 ${data.coins || 0}</span>
+                        </div>`;
                 });
             });
         }
 
+        function openReferView() { switchView('refer-section'); }
+        function openGuideView() { switchView('guide-section'); }
+
+        // Core Notification engine Toast handler
         function showNotification(msg, isWrong) {
             const popup = document.getElementById('popup-notification');
             popup.innerText = msg;
             popup.style.display = 'block';
             if (isWrong) popup.classList.add('wrong'); else popup.classList.remove('wrong');
-            setTimeout(() => { popup.style.display = 'none'; }, 2500);
+            setTimeout(() => { popup.style.display = 'none'; }, 3000);
         }
     </script>
 </body>
-    </html>
+</html>
