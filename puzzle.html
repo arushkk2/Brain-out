@@ -279,6 +279,16 @@
                 .then(() => { showNotification("Welcome back! Login successful.", false); })
                 .catch(err => showNotification("Login Failed. Email/Password check karein.", true));
                 }
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                switchView('dashboard-screen');
+                loadUserData();
+            } else {
+                currentUser = null;
+                switchView('auth-screen');
+            }
+        });
 
         function loadUserData() {
             rtdb.ref("users/" + currentUser.uid).on("value", (snapshot) => {
