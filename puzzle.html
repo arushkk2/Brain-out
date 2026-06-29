@@ -229,8 +229,7 @@
             { q: "Aisi kaun si chiz hai jo upar jati hai par niche nahi aati?", o: ["Patang", "Umar (Age)", "Gubaara", "Chidya"], a: "Umar (Age)", h: "Ye har saal bas badhti hi jati hai." },
             { q: "Ek andha aadmi kya dekh sakta hai?", o: ["Andhera", "Sapna", "Kuch nahi", "Aina"], a: "Andhera", h: "Aankhein band hone par jo dikhta hai." },
             { q: "Cricket ball me kitne seamer stitches (tanke) hote hain?", o: ["60", "80", "126", "200"], a: "126", h: "Kookaburra ya Dukes ball ke standard tanke." }
-        ];
-
+        ]
         function switchView(viewId) {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('dashboard-screen').style.display = 'none';
@@ -278,19 +277,8 @@
 
             auth.signInWithEmailAndPassword(email, pass)
                 .then(() => { showNotification("Welcome back! Login successful.", false); })
-                .catch(err => showNotification("Login Failed. Credentials check karein.", true));
-        }
-
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                switchView('dashboard-screen');
-                loadUserData();
-            } else {
-                currentUser = null;
-                switchView('auth-screen');
-            }
-        });
+                .catch(err => showNotification("Login Failed. Email/Password check karein.", true));
+                }
 
         function loadUserData() {
             rtdb.ref("users/" + currentUser.uid).on("value", (snapshot) => {
