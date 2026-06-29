@@ -3,106 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brain Rush - MCQ Tournament</title>
-    
-    <!-- Firebase Core, Auth and Database SDKs -->
+    <title>Brain Out Tournament</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #090a0f;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 15px;
-        }
-
-        .neon-border-pink { border: 1px solid #ff007f; box-shadow: 0 0 15px rgba(255, 0, 127, 0.2); }
-        .neon-border-blue { border: 1px solid #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.2); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0b0e14; color: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 15px; }
         
+        .neon-border-blue { border: 1px solid #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.2); }
+        .wrong { background: #ef4444 !important; }
+
         /* AUTH SCREEN */
-        #auth-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 85vh; width: 100%; }
-        .auth-card { background: #121420; padding: 30px 20px; border-radius: 20px; text-align: center; max-width: 400px; width: 100%; }
-        .input-field { width: 100%; padding: 12px; margin-top: 12px; border-radius: 10px; border: 1px solid #3f37c9; background: #0d0e15; color: #fff; font-size: 16px; outline: none; }
-        .input-field:focus { border-color: #00f2fe; box-shadow: 0 0 10px rgba(0, 242, 254, 0.5); }
+        #auth-screen { display: flex; flex-direction: column; justify-content: center; width: 100%; max-width: 400px; margin-top: 50px; }
+        .auth-card { background: #121420; padding: 30px 20px; border-radius: 20px; text-align: center; border: 1px solid #333; }
+        .input-field { width: 100%; padding: 12px; margin-top: 12px; border-radius: 10px; background: #1f2336; border: 1px solid #444; color: #fff; outline: none; }
+        .input-field:focus { border-color: #00f2fe; box-shadow: 0 0 10px rgba(0, 242, 254, 0.2); }
         
         /* DASHBOARD SCREEN */
-        #dashboard-screen { display: none; width: 100%; max-width: 480px; }
-        .user-profile-card { background: linear-gradient(135deg, #161925, #0d0e15); padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: center; 
+        #dashboard-screen, #game-screen, #leaderboard-section, #refer-section, #guide-section { display: none; width: 100%; max-width: 480px; }
+        .user-profile-card { background: linear-gradient(135deg, #161925, #0d0e15); padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 15px; }
         .stats-grid { display: flex; justify-content: space-around; margin-top: 15px; }
         .stat-item { background: #1f2336; padding: 10px 15px; border-radius: 12px; width: 45%; }
         .stat-val { font-size: 20px; font-weight: bold; color: #00f2fe; }
-
-        /* Banner Ad Space Placeholder */
-        .banner-ad-space { width: 100%; height: 60px; background: #1a1d2e; border: 1px dashed #555; border-radius: 10px; display: flex; justify-content: center; align-items: center; color: #777; font-size: 12px; margin-bottom: 20px; }
-
+        
+        .banner-ad-space { width: 100%; height: 60px; background: #1a1d2e; border: 1px dashed #555; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888; margin-bottom: 15px; border-radius: 10px; }
+        
         /* Menu Buttons */
-        .menu-btn { width: 100%; padding: 15px; margin-bottom: 15px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s; }
+        .menu-btn { width: 100%; padding: 15px; margin-bottom: 15px; border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
         .menu-btn:active { transform: scale(0.98); }
-        .btn-play { background: linear-gradient(45deg, #10b981, #059669); box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
-        .btn-leaderboard { background: linear-gradient(45deg, #ff007f, #7928ca); box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); }
-        .btn-refer { background: linear-gradient(45deg, #ffb703, #fb8500); box-shadow: 0 0 15px rgba(255, 183, 3, 0.4); }
-        .btn-guide { background: linear-gradient(45deg, #00f2fe, #4cc9f0); box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); color: #000; }
+        .btn-play { background: linear-gradient(45deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+        .btn-leaderboard { background: linear-gradient(45deg, #ff007f, #7928ca); }
+        .btn-refer { background: linear-gradient(45deg, #ffb703, #fb8500); box-shadow: 0 4px 15px rgba(251, 133, 0, 0.3); }
+        .btn-guide { background: linear-gradient(45deg, #00f2fe, #4cc9f0); color: #000; }
 
         /* GAME PLAY SCREEN & MCQ */
-        #game-screen { display: none; width: 100%; max-width: 480px; }
-        .game-header { display: flex; justify-content: space-between; align-items: center; background: #161925; padding: 12px 15px; border-radius: 15px; margin-bottom: 15px; }
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .hearts-box { color: #ef4444; font-size: 20px; letter-spacing: 2px; }
-        .booster-badge { background: #ffb703; color: #000; padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; display: none; margin-top: 5px; animation: pulse 1s infinite; }
-
-        .game-card { background: #161925; border-radius: 20px; padding: 25px; text-align: center; position: relative; }
-        .puzzle-text { font-size: 20px; font-weight: bold; margin: 20px 0; min-height: 50px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
+        .game-card { background: #161925; border-radius: 20px; padding: 25px 20px; text-align: center; border: 1px solid #2a2e45; margin-bottom: 20px; }
+        .puzzle-text { font-size: 20px; font-weight: bold; margin: 20px 0; min-height: 60px; }
         
-        /* MCQ Option Buttons Layout */
-        .options-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; margin-bottom: 20px; }
-        .option-btn { width: 100%; padding: 14px; background: #1f2336; border: 1px solid #3f37c9; border-radius: 10px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
+        .option-btn { width: 100%; padding: 14px; background: #1f2336; border: 1px solid #3a3f58; color: #fff; border-radius: 12px; font-size: 16px; text-align: left; cursor: pointer; }
         .option-btn:active { transform: scale(0.97); background: #2a2f4a; }
         
-        .sub-section { display: none; background: #161925; border-radius: 20px; padding: 20px; margin-bottom: 20px; }
-        .section-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #00f2fe; display: flex; justify-content: space-between; align-items: center; }
-        .back-dashboard-btn { background: none; border: 1px solid #555; color: #aaa; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; margin-bottom: 15px; }
+        .sub-section { background: #161925; border-radius: 20px; padding: 20px; border: 1px solid #2a2e45; }
+        .section-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .back-dashboard-btn { background: none; border: 1px solid #555; color: #aaa; padding: 6px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; font-size: 14px; }
+        
+        /* Custom Notification */
+        .custom-popup { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 25px; border-radius: 30px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 1000; animation: slideDown 0.3s ease; }
+        .player-row { display: flex; justify-content: space-between; padding: 10px; margin-bottom: 8px; background: #1f2336; border-radius: 8px; }
+        .top-player { border-left: 4px solid #ffd700; background: rgba(255, 215, 0, 0.05); }
+        .me { border: 1px solid #00f2fe; background: rgba(0, 242, 254, 0.1); }
+        
+        /* Lock Overlay Screen */
+        #block-screen { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(11,14,20,0.95); z-index:999; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
 
-        .custom-popup { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 15px 30px; border-radius: 10px; font-weight: bold; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); z-index: 100; text-align: center; width: 85%; max-width: 380px; }
-        .custom-popup.wrong { background: #ef4444; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); animation: shake 0.3s; }
-
-        .player-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222533; font-size: 14px; }
-        .player-row.top-player { color: #ffd700; font-weight: bold; }
-        .player-row.me { background: rgba(0, 242, 254, 0.15); border-radius: 5px; border-left: 3px solid #00f2fe; }
-
-        .lock-overlay { display: none; position: absolute; background: rgba(10, 11, 18, 0.98); top: 0; left: 0; width: 100%; height: 100%; z-index: 20; flex-direction: column; justify-content: center; align-items: center; padding: 20px; border-radius: 20px; text-align: center; }
-
-        @keyframes shake { 0%, 100% { transform: translateX(-50%); } 20%, 60% { transform: translateX(-55%); } 40%, 80% { transform: translateX(-45%); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="popup-notification" class="custom-popup">Alert</div>
+    <div id="popup-notification" class="custom-popup">Notification Msg</div>
 
-    <!-- 1. AUTH SCREEN -->
+    <div id="block-screen">
+        <h1 style="font-size:50px; margin-bottom:10px;">🔒</h1>
+        <h2>Daily Limit Reached!</h2>
+        <p style="color:#aaa; margin: 10px 0 20px 0; max-width:300px;">Aapne 10 Puzzles solve kar liye hain. Agla puzzle unlock karne ke liye ad dekhein ya timer ka wait karein.</p>
+        <button id="timer-btn" class="menu-btn btn-play" style="width:auto; padding:12px 30px; margin-bottom:10px;">⏳ Wait: <span id="countdown-timer">60</span>s</button>
+        <p style="color:#666; font-size:12px; margin-bottom:15px;">OR UNLOCK INSTANTLY</p>
+        <button class="menu-btn btn-leaderboard" style="width:auto; padding:12px 30px;" onclick="unlockViaAd()">📺 Watch Ad to Unlock</button>
+    </div>
+
     <div id="auth-screen">
         <div class="auth-card neon-border-blue">
-            <h1 style="color: #00f2fe; margin-bottom: 5px; font-size: 32px;">Brain Rush 🧠</h1>
-            <p style="color: #a0a5c1; font-size: 14px;">Log in karke direct tournament me shuru karein!</p>
+            <h2 style="margin-bottom: 5px;">🧠 Brain Out Trivia</h2>
+            <p style="color: #888; font-size: 13px; margin-bottom: 20px;">Log in karke direct tournament me shuru karein!</p>
             
-            <input type="text" id="auth-username" class="input-field" placeholder="Apna Naam (e.g., Arush)">
-            <input type="email" id="auth-email" class="input-field" placeholder="Email id daalein">
-            <input type="password" id="auth-password" class="input-field" placeholder="6-digit Password">
+            <input type="text" id="auth-username" class="input-field" placeholder="Full Name (Sirf Register ke liye)">
+            <input type="email" id="auth-email" class="input-field" placeholder="Email Address">
+            <input type="password" id="auth-password" class="input-field" placeholder="Password (Min 6 chars)">
             
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="menu-btn btn-play" style="margin:0; padding:12px;" onclick="handleSignUp()">Register</button>
-                <button class="menu-btn btn-guide" style="margin:0; padding:12px;" onclick="handleLogin()">Login</button>
+                <button class="menu-btn btn-play" style="margin:0;" onclick="handleSignUp()">Register</button>
+                <button class="menu-btn btn-guide" style="margin:0;" onclick="handleLogin()">Login</button>
             </div>
         </div>
     </div>
-
-    <!-- 2. GRAND MAIN DASHBOARD -->
         <div id="dashboard-screen">
         <div class="user-profile-card neon-border-blue">
             <h2 style="color: #fff;" id="dash-welcome">Welcome, Player! 👋</h2>
@@ -131,98 +120,79 @@
 
         <center><button class="input-field" style="width:auto; padding:8px 25px; margin-top:10px; background:#222; border:1px solid #444;" onclick="auth.signOut()">🚪 Logout Account</button></center>
     </div>
-    
-        <div class="banner-ad-space">📺 [BANNER ADVERTISEMENT RUNNING HERE]</div>
 
-        <button class="menu-btn btn-play" onclick="switchView('game-screen')">🕹️ Play Tournament</button>
-        <button class="menu-btn btn-leaderboard" onclick="openLeaderboardView()">🏆 Global Leaderboard</button>
-        <button class="menu-btn btn-refer" onclick="openReferView()">🎁 Refer & Earn (50 Coins)</button>
-        <button class="menu-btn btn-guide" onclick="openGuideView()">📖 How to Play / Guide</button>
-
-        <center><button class="input-field" style="width:auto; padding:8px 25px; margin-top:10px; background:#222; border:1px solid #444;" onclick="auth.signOut()">🚪 Logout Account</button></center>
+    <div id="leaderboard-section" class="sub-section">
+        <button class="back-dashboard-btn" onclick="switchView('dashboard-screen')">⬅️ Back to Menu</button>
+        <div class="section-header">
+            <span>🏆 Top 5 Players Rank</span> 
+            <span id="global-countdown-leaderboard" style="font-size:13px; color:#ff007f; font-weight:bold;"></span>
+        </div>
+        <div id="leaderboard-list">
+            </div>
     </div>
 
-    <!-- 3. GLOBAL LEADERBOARD SECTION -->
-    <div id="leaderboard-section" class="sub-section neon-border-pink" style="max-width:480px; width:100%;">
+    <div id="refer-section" class="sub-section">
         <button class="back-dashboard-btn" onclick="switchView('dashboard-screen')">⬅️ Back to Menu</button>
-        <div class="section-header"><span>🏆 Top 5 Players Rank</span> <span style="font-size:12px; color:#aaa;">Live Updates</span></div>
-        <div id="leaderboard-list"></div>
-    </div>
-
-    <!-- 4. REFER & EARN SECTION -->
-    <div id="refer-section" class="sub-section" style="max-width:480px; width:100%; border:1px solid #ffb703;">
-        <button class="back-dashboard-btn" onclick="switchView('dashboard-screen')">⬅️ Back to Menu</button>
-        <div class="section-header">🎁 Invite Friends & Earn</div>
-        <p style="font-size:14px; margin-bottom:15px; color:#aaa;">Apna refer code dosto ko bhejo. Jab wo use karenge, dono ko 50 Coins milenge!</p>
+        <div class="section-header">🎁 Refer & Earn System</div>
+        <p style="color:#aaa; font-size:14px; line-height:1.5;">Apne dosto ko invite karein! Jab wo aapka referral code use karenge, to <b>aapko aur aapke dost dono ko 50 Coins</b> milenge!</p>
         
-        <div style="background:#0d0e15; padding:12px; border-radius:10px; text-align:center; font-size:18px; font-weight:bold; color:#ffb703; border:1px dashed #ffb703; margin-bottom:20px;">
-            Your Code: <span id="my-refer-code">LOADING</span>
+        <div style="background:#1f2336; padding:15px; border-radius:12px; margin:20px 0; text-align:center;">
+            <p style="font-size:12px; color:#888;">YOUR REFER CODE</p>
+            <h1 id="my-refer-code" style="color:#ffb703; letter-spacing:2px; margin-top:5px;">LOADING...</h1>
         </div>
 
-        <input type="text" id="input-refer-code" class="input-field" placeholder="Apne dost ka refer code daalo">
-        <button class="menu-btn btn-refer" style="margin-top:10px; padding:12px;" onclick="claimReferral()">Claim 50 Coins Reward</button>
+        <p style="font-size:14px; margin-bottom:5px;">Have a Referral Code?</p>
+        <div style="with:100%; display:flex; gap:10px;">
+            <input type="text" id="input-refer-code" class="input-field" style="margin:0;" placeholder="Enter friend's code">
+            <button class="menu-btn btn-play" style="width:auto; margin:0; padding:0 25px;" onclick="claimReferral()">Claim</button>
+        </div>
     </div>
 
-    <!-- 5. HOW TO PLAY GUIDE SECTION -->
-    <div id="guide-section" class="sub-section neon-border-blue" style="max-width:480px; width:100%;">
+    <div id="guide-section" class="sub-section">
         <button class="back-dashboard-btn" onclick="switchView('dashboard-screen')">⬅️ Back to Menu</button>
         <div class="section-header">📖 Game Rules & Guide</div>
-        <div style="font-size:14px; line-height:1.6; color:#d1d5db;">
-            <p style="margin-bottom:10px;">🟢 **Sahi Jawab:** MCQ Option chunte hi sahi hone par **+3 Coins** milenge.</p>
-            <p style="margin-bottom:10px; color:#ef4444;">🔴 **Wrong Answers:** 3 Lives (❤️) milti hain. Kul **3 baar galat** karne par **1 Coin kat jayega**.</p>
-            <p style="margin-bottom:10px; color:#ffb703;">🚀 **Booster Mode:** Reward Ad dekh kar agle 5 round ke liye har sahi option par **+1 Extra Coin** paayein!</p>
-            <p style="margin-bottom:10px; color:#00f2fe;">🔒 **10 Puzzle Block:** Har 10 round baad ya to ad dekhein ya 1-minute wait karein unlock karne ke liye.</p>
+        <div style="color:#ccc; font-size:14px; line-height:1.8;">
+            <p>1. Har sahi sawal par aapko <b>10 Coins</b> milenge.</p>
+            <p>2. Galat jawab dene par 1 Heart 💔 kam ho jayega.</p>
+            <p>3. Har 10 sawal solve karne ke baad ek block screen aayegi jise aap Ad dekhkar bypass kar sakte hain.</p>
+            <p>4. <b>2-Day Tournament Engine:</b> Har do din baad raat ke exact 9:00 baje tournament resets hota hai aur Top 3 Ranks ko extra bonus prizes milte hain!</p>
         </div>
     </div>
 
-    <!-- 6. MAIN GAME PLAY SCREEN (MCQ ENGINE) -->
     <div id="game-screen">
-        <button class="back-dashboard-btn" onclick="switchView('dashboard-screen')">⬅️ Back to Menu</button>
-        
-        <div class="game-header neon-border-blue">
-            <div>
-                <div class="hearts-box" id="hearts-display">❤️❤️❤️</div>
-                <div class="booster-badge" id="booster-status">🚀 Booster Active (+1 Coin)</div>
-            </div>
-            <div style="text-align:right;">
-                <span style="color:#ffb703; font-weight:bold; font-size:18px;">🪙 <span id="game-coins">0</span></span>
-            </div>
+        <div class="game-header">
+            <button class="back-dashboard-btn" style="margin:0;" onclick="switchView('dashboard-screen')">🏁 Quit</button>
+            <div id="booster-status" style="display:none; font-size:12px; color:#ffb703; font-weight:bold;">🚀 2x Coins Active</div>
+            <div class="hearts-box" id="hearts-container">❤️❤️❤️</div>
         </div>
 
-        <div class="game-card neon-border-blue">
-            <div style="color:#00f2fe; font-size:14px; font-weight:bold;">Puzzle #<span id="puzzle-number">1</span>/10</div>
-            <div class="puzzle-text" id="puzzle-question">Loading puzzle question...</div>
-            
-            <!-- MCQ Options Grid Container -->
-            <div class="options-grid" id="options-container"></div>
-            
-            <div style="display:flex; gap:10px; margin-top:5px;">
-                <button class="menu-btn btn-guide" style="margin:0; padding:10px; font-size:14px;" onclick="triggerHint()">💡 Show Hint (Ad)</button>
-                <button class="menu-btn btn-refer" id="booster-btn" style="margin:0; padding:10px; font-size:14px;" onclick="triggerBooster()">🚀 Booster Ad (+1 Coin)</button>
+        <div class="game-card">
+            <div style="display:flex; justify-content:space-between; font-size:13px; color:#888;">
+                <span>🎯 Puzzle Room</span>
+                <span>🪙 Wallet: <b id="game-coins" style="color:#ffd700;">0</b></span>
             </div>
+            <h3 id="question-box" class="puzzle-text">Sawal loading ho raha hai...</h3>
+            
+            <div class="options-grid" id="options-container">
+                </div>
+        </div>
 
-            <div class="lock-overlay" id="block-screen">
-                <h2 style="color: #ff007f; margin-bottom:10px;">🔒 10 Puzzles Completed!</h2>
-                <p style="color:#a0a5c1; font-size:14px; margin-bottom:20px;">Agle 10 puzzles chalane ke liye choose karein:</p>
-                
-                <button class="menu-btn btn-play" style="padding:12px;" onclick="unlockViaAd()">📺 Watch Ad to Continue</button>
-                <p style="margin:10px 0; color:#555;">--- YA ---</p>
-                <button class="menu-btn btn-guide" id="timer-btn" style="padding:12px; background:#222; border:1px solid #444; color:#fff;" disabled>⏳ Wait <span id="countdown-timer">60</span>s</button>
-            </div>
+        <div style="display:flex; gap:10px;">
+            <button class="menu-btn btn-refer" style="background:#3a3f58;" onclick="triggerHint()">💡 Get Hint (Watch Ad)</button>
+            <button class="menu-btn btn-refer" onclick="triggerBooster()">🚀 Booster x2 (Ad)</button>
         </div>
     </div>
-
-    <!-- 7. CORE LOGIC JAVASCRIPT & DATABASE ENGINE -->
-    <script>
-        // Real Live Firebase Credentials Loaded Directly
+        <script>
+        // 🔐 LIVE FIRBASE CONFIGURATION PACK 
         const firebaseConfig = {
             apiKey: "AIzaSyB67TrXlrvp69dWmiMThTRqnAq41ernlG8",
             authDomain: "puzzle-game-390ed.firebaseapp.com",
-            databaseURL: "https://puzzle-game-390ed-default-rtdb.firebaseio.com/",
+            databaseURL: "https://puzzle-game-390ed-default-rtdb.firebaseio.com",
             projectId: "puzzle-game-390ed",
             storageBucket: "puzzle-game-390ed.firebasestorage.app",
             messagingSenderId: "90369555191",
-            appId: "1:90369555191:web:959bc1c255fc036623f1f2"
+            appId: "1:90369555191:web:959bc1c255fc036623f1f2",
+            measurementId: "G-N7TCV8MKZH"
         };
         
         firebase.initializeApp(firebaseConfig);
@@ -233,17 +203,18 @@
         let myCoins = 0;
         let currentPuzzleIndex = 0;
         let solvedCount = 0;
-        let lives = 3;
-        let boosterRoundsLeft = 0;
         let referCodeUsed = false;
+        let myHearts = 3;
+        let boosterRoundsLeft = 0;
 
         const puzzles = [
-            { q: "Mummy ka ulta kya hota hai?", o: ["Papa", "ymmum", "Dadi", "Bhai"], a: "ymmum", h: "Pura word reverse karke spelling read karo!" },
-            { q: "1 Chammach chini me kitne dane hote hain?", o: ["100", "500", "Bohot saare", "10,000"], a: "Bohot saare", h: "Count karna namumkin hai bhai!" },
-            { q: "Aisi kaun si chiz hai jo upar jati hai par niche nahi aati?", o: ["Patang", "Umar (Age)", "Gubaara", "Chidya"], a: "Umar (Age)", h: "Ye har saal bas badhti hi jati hai." },
-            { q: "Ek andha aadmi kya dekh sakta hai?", o: ["Andhera", "Sapna", "Kuch nahi", "Aina"], a: "Andhera", h: "Aankhein band hone par jo dikhta hai." },
-            { q: "Cricket ball me kitne seamer stitches (tanke) hote hain?", o: ["60", "80", "126", "200"], a: "126", h: "Kookaburra ya Dukes ball ke standard tanke." }
-        ]
+            { q: "Paani ka chemical formula kya hai?", a: ["H2O", "CO2", "O2", "NaCl"], c: 0, h: "Hydrogen aur Oxygen ka mix hai." },
+            { q: "Computer ka brain kisse kehte hain?", a: ["RAM", "Hard Disk", "CPU", "Keyboard"], c: 2, h: "Central Processing Unit short form hai." },
+            { q: "India ki capital city kaun si hai?", a: ["Mumbai", "New Delhi", "Kolkata", "Chennai"], c: 1, h: "Isme 'Delhi' aata hai." },
+            { q: "Solar System ka sabse bada planet kaun sa hai?", a: ["Earth", "Mars", "Jupiter", "Saturn"], c: 2, h: "J se naam shuru hota hai." },
+            { q: "Ek saal me kitne weeks hote hain?", a: ["48", "50", "52", "54"], c: 2, h: "50 se do zyada." }
+        ];
+
         function switchView(viewId) {
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('dashboard-screen').style.display = 'none';
@@ -251,7 +222,6 @@
             document.getElementById('refer-section').style.display = 'none';
             document.getElementById('guide-section').style.display = 'none';
             document.getElementById('game-screen').style.display = 'none';
-            
             document.getElementById(viewId).style.display = 'block';
         }
 
@@ -261,7 +231,7 @@
             let pass = document.getElementById('auth-password').value.trim();
 
             if(!name || !email || pass.length < 6) {
-                showNotification("Saari details bharo (Password min 6 chars)!", true);
+                showNotification("Details sahi se bharein (Password min 6 chars)!", true);
                 return;
             }
 
@@ -277,27 +247,25 @@
                     solvedCount: 0,
                     referCode: generatedRefer,
                     referCodeUsed: false
-                }).then(() => {
-                    showNotification("Account registered successfully! 🎉", false);
-                });
+                }).then(() => { showNotification("Account Created successfully! 🎉", false); });
             }).catch(err => showNotification(err.message, true));
         }
 
         function handleLogin() {
             let email = document.getElementById('auth-email').value.trim();
             let pass = document.getElementById('auth-password').value.trim();
-
             if(!email || !pass) { showNotification("Email aur password daalein!", true); return; }
 
             auth.signInWithEmailAndPassword(email, pass)
-                .then(() => { showNotification("Welcome back! Login successful.", false); })
-                .catch(err => showNotification("Login Failed. Email/Password check karein.", true));
-                }
+                .then(() => { showNotification("Welcome back!", false); })
+                .catch(err => showNotification(err.message, true));
+        }
+
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
                 switchView('dashboard-screen');
-                checkTournamentStatus(); // Server se link karke countdown chala dega
+                checkTournamentStatus();
                 loadUserData();
             } else {
                 currentUser = null;
@@ -324,172 +292,118 @@
                 }
             });
         }
-
-        function loadPuzzle() {
+                    function loadPuzzle() {
             if (solvedCount > 0 && solvedCount % 10 === 0) {
                 triggerBlockOverlay();
                 return;
             }
 
-            document.getElementById('block-screen').style.display = 'none';
             let p = puzzles[currentPuzzleIndex % puzzles.length];
-            document.getElementById('puzzle-question').innerText = p.q;
-            document.getElementById('puzzle-number').innerText = (solvedCount % 10) + 1;
-            updateHeartsDisplay();
-
-            let optionsContainer = document.getElementById('options-container');
-            optionsContainer.innerHTML = "";
-          
-               p.o.forEach((option) => {
-                let btn = document.createElement('button');
-                btn.className = "option-btn";
-                btn.innerText = option;
-                btn.onclick = function() { checkAnswer(option); };
-                optionsContainer.appendChild(btn);
+            document.getElementById('question-box').innerText = p.q;
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = "";
+            
+            p.a.forEach((option, idx) => {
+                optContainer.innerHTML += `<button class="option-btn" onclick="checkAnswer(${idx})">👉 ${option}</button>`;
             });
+            updateHeartsDisplay();
         }
 
-        function updateHeartsDisplay() {
-            let heartStr = "";
-            for(let i=0; i<lives; i++) heartStr += "❤️";
-            document.getElementById('hearts-display').innerText = heartStr || "💔 No Lives";
-        }
-        function checkAnswer(selectedOption) {
+        function checkAnswer(selectedIdx) {
             let p = puzzles[currentPuzzleIndex % puzzles.length];
-            let answerString = selectedOption.trim().toLowerCase();
-            let correctString = p.a.trim().toLowerCase();
-
-            if (answerString === correctString) {
-                let reward = 3;
-                if (boosterRoundsLeft > 0) {
-                    reward += 1;
-                    boosterRoundsLeft--;
-                    if(boosterRoundsLeft === 0) document.getElementById('booster-status').style.display = 'none';
-                }
-
-                myCoins += reward;
-                solvedCount++;
+            if (selectedIdx === p.c) {
+                let coinGain = 10;
+                if(boosterRoundsLeft > 0) { coinGain += 5; boosterRoundsLeft--; }
+                
+                myCoins += coinGain;
                 currentPuzzleIndex++;
-                showNotification(`Sahi Jawab! +${reward} Coins 🎉`, false);
-
+                solvedCount++;
+                
                 rtdb.ref("users/" + currentUser.uid).update({
                     coins: myCoins,
                     currentPuzzle: currentPuzzleIndex,
                     solvedCount: solvedCount
                 });
-                } else {
-                lives--;
-                let rightAnswer = p.a;
-                
-                if (lives === 0) {
-                    myCoins = Math.max(0, myCoins - 1);
-                    lives = 3;
-                    showNotification(`Galat! Sahi ans [ ${rightAnswer} ] tha. -1 Coin Cut gaya! ❌`, true);
-                } else {
-                    showNotification(`Galat! Sahi ans [ ${rightAnswer} ] tha. Next loaded.`, true);
-                }
-
-                currentPuzzleIndex++;
-                solvedCount++;
-
-                rtdb.ref("users/" + currentUser.uid).update({ 
-                    coins: myCoins,
-                    currentPuzzle: currentPuzzleIndex,
-                    solvedCount: solvedCount
-                });
+                showNotification(`Sahi Jawab! +${coinGain} Coins 🪙`, false);
+                if(boosterRoundsLeft === 0) document.getElementById('booster-status').style.display = 'none';
+            } else {
+                myHearts--;
+                if(myHearts <= 0) {
+                    showNotification("Hearts khatam! 10 Coins deduct hue.", true);
+                    myCoins = Math.max(0, myCoins - 10); myHearts = 3;
+                    rtdb.ref("users/" + currentUser.uid).update({ coins: myCoins });
+                } else { showNotification("Galat Jawab! Try Again 💔", true); }
                 updateHeartsDisplay();
             }
         }
-                 // ==========================================
-        // ⏳ MASTER ENGINE: GLOBAL TOURNAMENT & REALTIME LIVE COUNTDOWN
-        // ==========================================
+
+        function updateHeartsDisplay() {
+            let hStr = "";
+            for(let i=0; i<3; i++) { if(i < myHearts) hStr += "❤️"; else hStr += "🖤"; }
+            document.getElementById('hearts-container').innerText = hStr;
+        }
+
         let countdownInterval = null;
 
         function checkTournamentStatus() {
             rtdb.ref("tournament_settings").on("value", (snapshot) => {
-                let now = Date.now();
-                let expiryTime;
-
+                let now = Date.now(); let expiryTime;
                 if (!snapshot.exists()) {
                     expiryTime = getNextTournamentExpiry();
                     rtdb.ref("tournament_settings").set({ expiry: expiryTime });
-                } else {
-                    expiryTime = snapshot.val().expiry;
-                }
+                } else { expiryTime = snapshot.val().expiry; }
 
-                if (now >= expiryTime) {
-                    distributeRewardsAndReset();
-                } else {
-                    startGlobalCountdown(expiryTime);
-                }
+                if (now >= expiryTime) { distributeRewardsAndReset(); } else { startGlobalCountdown(expiryTime); }
             });
         }
 
         function getNextTournamentExpiry() {
-            let d = new Date();
-            d.setHours(21, 0, 0, 0); 
-            
-            if (Date.now() >= d.getTime()) {
-                return d.getTime() + (2 * 24 * 60 * 60 * 1000);
-            }
+            let d = new Date(); d.setHours(21, 0, 0, 0); 
+            if (Date.now() >= d.getTime()) { return d.getTime() + (2 * 24 * 60 * 60 * 1000); }
             return d.getTime() + (2 * 24 * 60 * 60 * 1000);
         }
 
         function startGlobalCountdown(expiryTime) {
             if (countdownInterval) clearInterval(countdownInterval);
-
             countdownInterval = setInterval(() => {
-                let now = Date.now();
-                let timeLeft = expiryTime - now;
-
+                let now = Date.now(); let timeLeft = expiryTime - now;
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
-                    document.getElementById('global-countdown').innerText = "Processing Results...";
-                    return;
+                    document.getElementById('global-countdown').innerText = "Processing..."; return;
                 }
-
                 let days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
                 let hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                 let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
                 let displayStr = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-                let timerEl = document.getElementById('global-countdown');
-                if (timerEl) timerEl.innerText = displayStr;
-
+                if (document.getElementById('global-countdown')) document.getElementById('global-countdown').innerText = displayStr;
+                if (document.getElementById('global-countdown-leaderboard')) document.getElementById('global-countdown-leaderboard').innerText = "⏳ " + displayStr;
             }, 1000);
         }
 
         function distributeRewardsAndReset() {
             if (countdownInterval) clearInterval(countdownInterval);
-
             rtdb.ref("users").orderByChild("coins").limitToLast(3).once("value", (snapshot) => {
                 if (snapshot.exists()) {
                     snapshot.forEach((child) => {
-                        let userUid = child.key;
-                        let currentCoins = child.val().coins || 0;
+                        let userUid = child.key; let currentCoins = child.val().coins || 0;
                         rtdb.ref("users/" + userUid).update({ coins: currentCoins + 100 });
                     });
                 }
-
                 let nextExpiry = Date.now() + (2 * 24 * 60 * 60 * 1000);
-                let d = new Date(nextExpiry);
-                d.setHours(21, 0, 0, 0); 
-                
+                let d = new Date(nextExpiry); d.setHours(21, 0, 0, 0); 
                 rtdb.ref("tournament_settings").update({ expiry: d.getTime() });
 
                 rtdb.ref("users").once("value", (usersSnapshot) => {
                     usersSnapshot.forEach((userChild) => {
                         rtdb.ref("users/" + userChild.key).update({ solvedCount: 0, currentPuzzle: 0 });
                     });
-                    showNotification("🏆 Tournament Ended! Scores Reset & Rewards Distributed!", false);
+                    showNotification("🏆 Tournament Resetted!", false);
                 });
             });
         }
 
-        // ==========================================
-        // 📺 AD NETWORKS INTEGRATION ENGINE
-        // ==========================================
         function triggerHint() {
             showNotification("📺 Reward Ad Chal raha hai...", false);
             setTimeout(() => {
@@ -503,7 +417,7 @@
             setTimeout(() => {
                 boosterRoundsLeft = 5;
                 document.getElementById('booster-status').style.display = 'block';
-                showNotification("🚀 Booster Active! Next 5 puzzles tak milega +1 Coin!", false);
+                showNotification("🚀 Booster Active! Next 5 puzzles par bonus!", false);
             }, 3000);
         }
 
@@ -512,24 +426,17 @@
             setTimeout(() => { bypassLock(); }, 3000);
         }
 
-        // ==========================================
-        // 🕹️ REMAINING CORE GAME FUNCTIONS
-        // ==========================================
         function triggerBlockOverlay() {
             document.getElementById('block-screen').style.display = 'flex';
             let timerBtn = document.getElementById('timer-btn');
             let timeSpan = document.getElementById('countdown-timer');
             let timeLeft = 60;
-
-            timerBtn.disabled = true;
-            timeSpan.innerText = timeLeft;
+            timerBtn.disabled = true; timeSpan.innerText = timeLeft;
 
             let countdown = setInterval(() => {
-                timeLeft--;
-                timeSpan.innerText = timeLeft;
+                timeLeft--; timeSpan.innerText = timeLeft;
                 if(timeLeft <= 0) {
-                    clearInterval(countdown);
-                    timerBtn.disabled = false;
+                    clearInterval(countdown); timerBtn.disabled = false;
                     timerBtn.innerText = "✅ Click to Unlock Free";
                     timerBtn.onclick = function() { bypassLock(); }
                 }
@@ -537,8 +444,7 @@
         }
 
         function bypassLock() {
-            solvedCount++; 
-            rtdb.ref("users/" + currentUser.uid).update({ solvedCount: solvedCount });
+            solvedCount++; rtdb.ref("users/" + currentUser.uid).update({ solvedCount: solvedCount });
             document.getElementById('block-screen').style.display = 'none';
             showNotification("🔓 Stage Unlocked!", false);
         }
@@ -564,21 +470,14 @@
         }
 
         function openLeaderboardView() {
-            switchView('leaderboard-section');
-            checkTournamentStatus();
-
+            switchView('leaderboard-section'); checkTournamentStatus();
             rtdb.ref("users").orderByChild("coins").limitToLast(5).on("value", (snapshot) => {
-                const list = document.getElementById('leaderboard-list');
-                list.innerHTML = "";
-                let players = [];
-                snapshot.forEach((child) => { players.push(child.val()); });
+                const list = document.getElementById('leaderboard-list'); list.innerHTML = "";
+                let players = []; snapshot.forEach((child) => { players.push(child.val()); });
                 players.reverse();
 
                 players.forEach((data, index) => {
-                    let rank = index + 1;
-                    let rowClass = "player-row";
-                    let prefix = "";
-
+                    let rank = index + 1; let rowClass = "player-row"; let prefix = "";
                     if (rank <= 3) rowClass += " top-player";
                     if (rank === 1) prefix = "👑 ";
                     if (data.uid === currentUser.uid) rowClass += " me";
@@ -598,11 +497,12 @@
 
         function showNotification(msg, isWrong) {
             const popup = document.getElementById('popup-notification');
-            popup.innerText = msg;
-            popup.style.display = 'block';
+            popup.innerText = msg; popup.style.display = 'block';
             if (isWrong) popup.classList.add('wrong'); else popup.classList.remove('wrong');
             setTimeout(() => { popup.style.display = 'none'; }, 3000);
         }
     </script>
 </body>
 </html>
+
+            
