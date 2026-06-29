@@ -286,6 +286,7 @@
             if (user) {
                 currentUser = user;
                 switchView('dashboard-screen');
+                checkTournamentStatus(); // Server se link karke countdown chala dega
                 loadUserData();
             } else {
                 currentUser = null;
@@ -388,97 +389,106 @@
                 updateHeartsDisplay();
             }
         }
-                // ==========================================
-        // ⏳ NEW: 2-DAY TOURNAMENT RESET SYSTEM
-        // ==========================================
                  // ==========================================
-        // ⏳ FIXED: HAR 2 DIN BAAD RAAT 9 BAZE RESET ENGINE
+        // ⏳ MASTER ENGINE: GLOBAL TOURNAMENT & REALTIME LIVE COUNTDOWN
         // ==========================================
+        let countdownInterval = null;
+
         function checkTournamentStatus() {
-            rtdb.ref("tournament_settings").once("value", (snapshot) => {
+            rtdb.ref("tournament_settings").on("value", (snapshot) => {
                 let now = Date.now();
-                
+                let expiryTime;
+
                 if (!snapshot.exists()) {
-                    // Agar pehli baar hai, to aaj ya kal ke raat ke 9 baje ka target set karo
-                    let target9PM = getNextTournamentExpiry();
-                    rtdb.ref("tournament_settings").set({ expiry: target9PM });
+                    expiryTime = getNextTournamentExpiry();
+                    rtdb.ref("tournament_settings").set({ expiry: expiryTime });
                 } else {
-                    let expiryTime = snapshot.val().expiry;
-                    if (now >= expiryTime) {
-                        // 🔥 Raat ke 9 baj gaye aur 2 din poore ho gaye! Reset Shuru
-                        distributeRewardsAndReset();
-                    }
+                    expiryTime = snapshot.val().expiry;
+                }
+
+                if (now >= expiryTime) {
+                    distributeRewardsAndReset();
+                } else {
+                    startGlobalCountdown(expiryTime);
                 }
             });
         }
 
-        // Target Date nikalne ka function (Raat ke 9 baje + 2 Din)
         function getNextTournamentExpiry() {
             let d = new Date();
-            // Aaj ke raat ke 9:00 PM (21:00 Hours) ka time set karo
             d.setHours(21, 0, 0, 0); 
             
-            // Agar aaj ke raat ke 9 pehle hi baj chuke hain, to agle cycle par bhejo
             if (Date.now() >= d.getTime()) {
-                return d.getTime() + (2 * 24 * 60 * 60 * 1000); // 2 din baad raat 9 baje
-            } else {
-                return d.getTime() + (2 * 24 * 60 * 60 * 1000); // 2 din baad raat 9 baje
+                return d.getTime() + (2 * 24 * 60 * 60 * 1000);
             }
+            return d.getTime() + (2 * 24 * 60 * 60 * 1000);
+        }
+
+        function startGlobalCountdown(expiryTime) {
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                let now = Date.now();
+                let timeLeft = expiryTime - now;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('global-countdown').innerText = "Processing Results...";
+                    return;
+                }
+
+                let days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                let hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                let displayStr = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                let timerEl = document.getElementById('global-countdown');
+                if (timerEl) timerEl.innerText = displayStr;
+
+            }, 1000);
         }
 
         function distributeRewardsAndReset() {
-            // 🏆 Top 3 players ko nikal kar reward do
+            if (countdownInterval) clearInterval(countdownInterval);
+
             rtdb.ref("users").orderByChild("coins").limitToLast(3).once("value", (snapshot) => {
                 if (snapshot.exists()) {
                     snapshot.forEach((child) => {
                         let userUid = child.key;
                         let currentCoins = child.val().coins || 0;
-                        // Winner Bonus Reward 100 Coins
                         rtdb.ref("users/" + userUid).update({ coins: currentCoins + 100 });
                     });
                 }
 
-                // Agle 2 din ke baad ki raat ke 9 baje ka naya time set karo
                 let nextExpiry = Date.now() + (2 * 24 * 60 * 60 * 1000);
                 let d = new Date(nextExpiry);
-                d.setHours(21, 0, 0, 0); // Strict 9 PM Lock
+                d.setHours(21, 0, 0, 0); 
                 
                 rtdb.ref("tournament_settings").update({ expiry: d.getTime() });
 
-                // Sabhi users ka score 0 karke tournament clear karo
                 rtdb.ref("users").once("value", (usersSnapshot) => {
                     usersSnapshot.forEach((userChild) => {
                         rtdb.ref("users/" + userChild.key).update({ solvedCount: 0, currentPuzzle: 0 });
                     });
-                    showNotification("🏆 Raat ke 9 Baj Gaye! Purana Tournament Khatam, Naya Shuru!", false);
+                    showNotification("🏆 Tournament Ended! Scores Reset & Rewards Distributed!", false);
                 });
             });
         }
-        
 
         // ==========================================
         // 📺 AD NETWORKS INTEGRATION ENGINE
         // ==========================================
-        
-        // 1. Hint Ad Handler
         function triggerHint() {
             showNotification("📺 Reward Ad Chal raha hai...", false);
-            
-            // 💰 ADS SLOT: Agar Monetag/Adsterra ka Rewarded video code mile, to yahan direct lagana hai
-            // Jaise: show_rewarded_ad().then(() => { ... })
-            
             setTimeout(() => {
                 let p = puzzles[currentPuzzleIndex % puzzles.length];
                 showNotification(`💡 HINT: ${p.h}`, false);
             }, 2500);
         }
 
-        // 2. Booster Ad Handler (+1 Extra Coin)
         function triggerBooster() {
             showNotification("📺 Video Ad loading...", false);
-            
-            // 💰 ADS SLOT: Rewarded Ad integration script line
-            
             setTimeout(() => {
                 boosterRoundsLeft = 5;
                 document.getElementById('booster-status').style.display = 'block';
@@ -486,12 +496,8 @@
             }, 3000);
         }
 
-        // 3. 10-Puzzle Unlock Ad Handler
         function unlockViaAd() {
             showNotification("📺 Loading Interstitial Ad...", false);
-            
-            // 💰 ADS SLOT: Interstitial/Pop-up Ad direct trigger script
-            
             setTimeout(() => { bypassLock(); }, 3000);
         }
 
@@ -548,7 +554,6 @@
 
         function openLeaderboardView() {
             switchView('leaderboard-section');
-            // Reset tournament engine check jab bhi koi leaderboard khole
             checkTournamentStatus();
 
             rtdb.ref("users").orderByChild("coins").limitToLast(5).on("value", (snapshot) => {
