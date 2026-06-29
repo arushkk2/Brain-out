@@ -34,10 +34,7 @@
         
         /* DASHBOARD SCREEN */
         #dashboard-screen { display: none; width: 100%; max-width: 480px; }
-        .user-profile-card { background: linear-gradient(135deg, #161925, #0d0e15); padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: center; }
-        <div id="tournament-timer-box" style="background: linear-gradient(45deg, #ff007f, #7928ca); padding: 10px; border-radius: 12px; text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);">
-    🏆 Tournament Ends In: <span id="global-countdown">Loading...</span>
-</div>
+        .user-profile-card { background: linear-gradient(135deg, #161925, #0d0e15); padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: center; 
         .stats-grid { display: flex; justify-content: space-around; margin-top: 15px; }
         .stat-item { background: #1f2336; padding: 10px 15px; border-radius: 12px; width: 45%; }
         .stat-val { font-size: 20px; font-weight: bold; color: #00f2fe; }
@@ -106,7 +103,7 @@
     </div>
 
     <!-- 2. GRAND MAIN DASHBOARD -->
-    <div id="dashboard-screen">
+        <div id="dashboard-screen">
         <div class="user-profile-card neon-border-blue">
             <h2 style="color: #fff;" id="dash-welcome">Welcome, Player! 👋</h2>
             <div class="stats-grid">
@@ -121,6 +118,20 @@
             </div>
         </div>
 
+        <div id="tournament-timer-box" style="background: linear-gradient(45deg, #ff007f, #7928ca); padding: 12px; border-radius: 12px; text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); border: 1px solid #ff007f;">
+            🏆 Tournament Ends In: <span id="global-countdown" style="color: #00f2fe; font-family: monospace;">Loading...</span>
+        </div>
+
+        <div class="banner-ad-space">📺 [BANNER ADVERTISEMENT RUNNING HERE]</div>
+
+        <button class="menu-btn btn-play" onclick="switchView('game-screen')">🕹️ Play Tournament</button>
+        <button class="menu-btn btn-leaderboard" onclick="openLeaderboardView()">🏆 Global Leaderboard</button>
+        <button class="menu-btn btn-refer" onclick="openReferView()">🎁 Refer & Earn (50 Coins)</button>
+        <button class="menu-btn btn-guide" onclick="openGuideView()">📖 How to Play / Guide</button>
+
+        <center><button class="input-field" style="width:auto; padding:8px 25px; margin-top:10px; background:#222; border:1px solid #444;" onclick="auth.signOut()">🚪 Logout Account</button></center>
+    </div>
+    
         <div class="banner-ad-space">📺 [BANNER ADVERTISEMENT RUNNING HERE]</div>
 
         <button class="menu-btn btn-play" onclick="switchView('game-screen')">🕹️ Play Tournament</button>
