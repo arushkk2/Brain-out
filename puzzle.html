@@ -3,553 +3,330 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brain Out Tournament</title>
+    <title>Brain Out Trivia</title>
+    <!-- Firebase Libraries -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0b0e14; color: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 15px; }
-        
-        .neon-border-blue { border: 1px solid #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.2); }
-        .wrong { background: #ef4444 !important; }
-
-        /* AUTH SCREEN */
-        #auth-screen { display: flex; flex-direction: column; justify-content: center; width: 100%; max-width: 400px; margin-top: 50px; }
-        .auth-card { background: #121420; padding: 30px 20px; border-radius: 20px; text-align: center; border: 1px solid #333; }
-        .input-field { width: 100%; padding: 12px; margin-top: 12px; border-radius: 10px; background: #1f2336; border: 1px solid #444; color: #fff; outline: none; }
-        .input-field:focus { border-color: #00f2fe; box-shadow: 0 0 10px rgba(0, 242, 254, 0.2); }
-        
-        /* DASHBOARD SCREEN */
-        #dashboard-screen, #game-screen, #leaderboard-section, #refer-section, #guide-section { display: none; width: 100%; max-width: 480px; }
-        .user-profile-card { background: linear-gradient(135deg, #161925, #0d0e15); padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 15px; }
-        .stats-grid { display: flex; justify-content: space-around; margin-top: 15px; }
-        .stat-item { background: #1f2336; padding: 10px 15px; border-radius: 12px; width: 45%; }
-        .stat-val { font-size: 20px; font-weight: bold; color: #00f2fe; }
-        
-        .banner-ad-space { width: 100%; height: 60px; background: #1a1d2e; border: 1px dashed #555; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888; margin-bottom: 15px; border-radius: 10px; }
-        
-        /* Menu Buttons */
-        .menu-btn { width: 100%; padding: 15px; margin-bottom: 15px; border: none; border-radius: 12px; color: #fff; font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
-        .menu-btn:active { transform: scale(0.98); }
-        .btn-play { background: linear-gradient(45deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
-        .btn-leaderboard { background: linear-gradient(45deg, #ff007f, #7928ca); }
-        .btn-refer { background: linear-gradient(45deg, #ffb703, #fb8500); box-shadow: 0 4px 15px rgba(251, 133, 0, 0.3); }
-        .btn-guide { background: linear-gradient(45deg, #00f2fe, #4cc9f0); color: #000; }
-
-        /* GAME PLAY SCREEN & MCQ */
-        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        body { background: #121420; color: #fff; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { width: 100%; max-width: 500px; background: #1a1d2e; padding: 20px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); text-align: center; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .stats-box { background: #252942; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 5px; }
         .hearts-box { color: #ef4444; font-size: 20px; letter-spacing: 2px; }
-        .game-card { background: #161925; border-radius: 20px; padding: 25px 20px; text-align: center; border: 1px solid #2a2e45; margin-bottom: 20px; }
-        .puzzle-text { font-size: 20px; font-weight: bold; margin: 20px 0; min-height: 60px; }
-        
-        .options-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
-        .option-btn { width: 100%; padding: 14px; background: #1f2336; border: 1px solid #3a3f58; color: #fff; border-radius: 12px; font-size: 16px; text-align: left; cursor: pointer; }
-        .option-btn:active { transform: scale(0.97); background: #2a2f4a; }
-        
-        .sub-section { background: #161925; border-radius: 20px; padding: 20px; border: 1px solid #2a2e45; }
-        .section-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .back-dashboard-btn { background: none; border: 1px solid #555; color: #aaa; padding: 6px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; font-size: 14px; }
-        
+        .game-card { background: #161925; border-radius: 20px; padding: 30px 20px; margin-bottom: 20px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); min-height: 180px; display: flex; align-items: center; justify-content: center; }
+        .puzzle-text { font-size: 20px; font-weight: bold; margin: 0; line-height: 1.5; color: #f3f4f6; }
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 20px; }
+        .option-btn { width: 100%; padding: 14px; background: #1f233a; border: 2px solid #2d3250; color: #fff; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .option-btn:active { transform: scale(0.97); background: #2d3250; }
+        .sub-section { background: #161925; border-radius: 20px; padding: 15px; margin-top: 15px; }
+        .section-header { font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #ffd700; }
+        .back-dashboard-btn { background: none; border: 1px solid #3a3f58; color: #aaa; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 15px; font-size: 14px; }
         /* Custom Notification */
-        .custom-popup { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 12px 25px; border-radius: 30px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 1000; animation: slideDown 0.3s ease; }
-        .player-row { display: flex; justify-content: space-between; padding: 10px; margin-bottom: 8px; background: #1f2336; border-radius: 8px; }
-        .top-player { border-left: 4px solid #ffd700; background: rgba(255, 215, 0, 0.05); }
-        .me { border: 1px solid #00f2fe; background: rgba(0, 242, 254, 0.1); }
-        
+        .custom-popup { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #22c55e; color: white; padding: 12px 25px; border-radius: 30px; font-weight: bold; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: slideDown 0.3s ease; }
+        .player-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #252942; font-size: 14px; }
+        .top-player { border-left: 4px solid #ffd700; background: rgba(255,215,0,0.05); }
+        .me { border: 1px solid #00f2fe; background: rgba(0,242,254,0.05); font-weight: bold; }
         /* Lock Overlay Screen */
-        #block-screen { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(11,14,20,0.95); z-index:999; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; }
-
+        #block-screen { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(18,20,32,0.95); z-index:9999; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px; }
         @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
     </style>
 </head>
 <body>
-      <!-- PART 1: AD CONTAINER FOR HINT -->
+
+<!-- AD CONTAINER FOR HINT (PART 1 ADSTERRA) -->
 <div id="hint-ad-container" style="display: none; text-align: center; margin: 15px 0; padding: 10px; background: #2a2d3d; border-radius: 8px;">
   <p style="color: #fff; margin: 0 0 10px 0; font-size: 14px;">💡 Ad Loading...</p>
   <div id="adsterra-banner-slot"></div>
 </div>
-    
-    <div id="popup-notification" class="custom-popup">Notification Msg</div>
 
-    <div id="block-screen">
-        <h1 style="font-size:50px; margin-bottom:10px;">🔒</h1>
-        <h2>Daily Limit Reached!</h2>
-        <p style="color:#aaa; margin: 10px 0 20px 0; max-width:300px;">Aapne 10 Puzzles solve kar liye hain. Agla puzzle unlock karne ke liye ad dekhein ya timer ka wait karein.</p>
-        <button id="timer-btn" class="menu-btn btn-play" style="width:auto; padding:12px 30px; margin-bottom:10px;">⏳ Wait: <span id="countdown-timer">60</span>s</button>
-        <p style="color:#666; font-size:12px; margin-bottom:15px;">OR UNLOCK INSTANTLY</p>
-        <button class="menu-btn btn-leaderboard" style="width:auto; padding:12px 30px;" onclick="unlockViaAd()">📺 Watch Ad to Unlock</button>
-    </div>
+<div id="popup-notification" class="custom-popup">Notification</div>
 
-    <div id="auth-screen">
-        <div class="auth-card neon-border-blue">
-            <h2 style="margin-bottom: 5px;">🧠 Brain Out Trivia</h2>
-            <p style="color: #888; font-size: 13px; margin-bottom: 20px;">Log in karke direct tournament me shuru karein!</p>
-            
-            <input type="text" id="auth-username" class="input-field" placeholder="Full Name (Sirf Register ke liye)">
-            <input type="email" id="auth-email" class="input-field" placeholder="Email Address">
-            <input type="password" id="auth-password" class="input-field" placeholder="Password (Min 6 chars)">
-            
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="menu-btn btn-play" style="margin:0;" onclick="handleSignUp()">Register</button>
-                <button class="menu-btn btn-guide" style="margin:0;" onclick="handleLogin()">Login</button>
-            </div>
+<div id="block-screen">
+    <h1 style="font-size:50px; margin-bottom:10px;">🔒</h1>
+    <h2>Daily Limit Reached!</h2>
+    <p style="color:#aaa; margin: 10px 0 20px 0; max-width:300px;">Aapne aaj ke maximum levels paar kar liye hain. Agle levels kal subah unlock honge!</p>
+    <button id="timer-btn" class="menu-btn btn-play" style="width:100%; background:#3b82f6; color:white; padding:12px; border:none; border-radius:10px; font-weight:bold;" disabled>00:00:00</button>
+    <p style="color:#666; font-size:12px; margin-top:15px;">Tab tak aap leaderboard par apni rank check kar sakte hain.</p>
+    <button class="menu-btn btn-leaderboard" style="width:auto; background:none; border:1px solid #3a3f58; color:#aaa; padding:8px 15px; border-radius:8px; margin-top:10px;" onclick="showScreen('leaderboard-screen')">Leaderboard Dekhein</button>
+</div>
+<!-- AUTH SCREEN -->
+<div id="auth-screen" class="container">
+    <div class="auth-card">
+        <h2 style="margin-bottom: 5px;">🧠 Brain Out Trivia</h2>
+        <p style="color: #888; font-size: 13px; margin-bottom: 25px;">Sawal Mazedar, Dimag Behtareen!</p>
+        <input type="text" id="auth-username" class="option-btn" style="background:#161925; text-align:left; margin-bottom:12px; cursor:text;" placeholder="Apna Naam Likhein">
+        <input type="email" id="auth-email" class="option-btn" style="background:#161925; text-align:left; margin-bottom:12px; cursor:text;" placeholder="Email Address">
+        <input type="password" id="auth-password" class="option-btn" style="background:#161925; text-align:left; margin-bottom:20px; cursor:text;" placeholder="Password">
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="option-btn" style="background:#3b82f6; border-color:#2563eb;" onclick="handleAuth('login')">Log In</button>
+            <button class="option-btn" style="background:#22c55e; border-color:#16a34a;" onclick="handleAuth('signup')">Sign Up</button>
         </div>
     </div>
-        <div id="dashboard-screen">
-        <div class="user-profile-card neon-border-blue">
-            <h2 style="color: #fff;" id="dash-welcome">Welcome, Player! 👋</h2>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <p style="color:#a0a5c1; font-size:12px;">Total Coins</p>
-                    <div class="stat-val" style="color: #ffd700;">🪙 <span id="dash-coins">0</span></div>
-                </div>
-                <div class="stat-item">
-                    <p style="color:#a0a5c1; font-size:12px;">Puzzles Solved</p>
-                    <div class="stat-val" id="dash-solved">0</div>
-                </div>
-            </div>
+</div>
+
+<!-- DASHBOARD SCREEN -->
+<div id="dashboard-screen" class="container" style="display:none;">
+    <div class="header-row">
+        <div style="text-align: left;">
+            <div id="user-welcome" style="font-weight:bold; font-size:18px; color:#ffd700;">Player</div>
+            <div id="user-email" style="font-size:12px; color:#888;">loading...</div>
         </div>
-
-        <div id="tournament-timer-box" style="background: linear-gradient(45deg, #ff007f, #7928ca); padding: 12px; border-radius: 12px; text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 15px; box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); border: 1px solid #ff007f;">
-            🏆 Tournament Ends In: <span id="global-countdown" style="color: #00f2fe; font-family: monospace;">Loading...</span>
-        </div>
-
-        <div class="banner-ad-space">📺 [BANNER ADVERTISEMENT RUNNING HERE]</div>
-
-        <button class="menu-btn btn-play" onclick="switchView('game-screen')">🕹️ Play Tournament</button>
-        <button class="menu-btn btn-leaderboard" onclick="openLeaderboardView()">🏆 Global Leaderboard</button>
-        <button class="menu-btn btn-refer" onclick="openReferView()">🎁 Refer & Earn (50 Coins)</button>
-        <button class="menu-btn btn-guide" onclick="openGuideView()">📖 How to Play / Guide</button>
-
-        <center><button class="input-field" style="width:auto; padding:8px 25px; margin-top:10px; background:#222; border:1px solid #444;" onclick="auth.signOut()">🚪 Logout Account</button></center>
+        <button class="back-dashboard-btn" style="margin:0; padding:6px 12px; border-color:#ef4444; color:#ef4444;" onclick="logout()">Log Out</button>
     </div>
-
-    <div id="leaderboard-section" class="sub-section">
-        <button class="back-dashboard-btn" onclick="switchView('dashboard-screen')">⬅️ Back to Menu</button>
-        <div class="section-header">
-            <span>🏆 Top 5 Players Rank</span> 
-            <span id="global-countdown-leaderboard" style="font-size:13px; color:#ff007f; font-weight:bold;"></span>
-        </div>
-        <div id="leaderboard-list">
-            </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:25px;">
+        <div class="stats-box" style="justify-content:center; background:#1e2235; padding:20px;"><span style="font-size:24px;">🪙</span> <span id="dash-coins" style="font-size:20px;">0</span></div>
+        <div class="stats-box" style="justify-content:center; background:#1e2235; padding:20px;"><span style="font-size:24px;">🎯</span> <span id="dash-level" style="font-size:20px;">Level 1</span></div>
     </div>
+    <button class="option-btn" style="background:#22c55e; border-color:#16a34a; font-size:20px; padding:18px; margin-bottom:15px; box-shadow:0 4px 15px rgba(34,197,94,0.3);" onclick="startGame()">▶ PLAY GAME</button>
+    <button class="option-btn" style="background:#3b82f6; border-color:#2563eb; margin-bottom:15px;" onclick="showScreen('leaderboard-screen')">🏆 LEADERBOARD</button>
+    <button id="dash-booster-btn" class="option-btn" style="background:#a855f7; border-color:#9333ea; display:none;" onclick="activateBooster()">⚡ ACTIVATE 1.5x BOOSTER</button>
+</div>
 
-    <div id="refer-section" class="sub-section">
-        <button class="back-dashboard-btn" onclick="switchView('dashboard-screen')">⬅️ Back to Menu</button>
-        <div class="section-header">🎁 Refer & Earn System</div>
-        <p style="color:#aaa; font-size:14px; line-height:1.5;">Apne dosto ko invite karein! Jab wo aapka referral code use karenge, to <b>aapko aur aapke dost dono ko 50 Coins</b> milenge!</p>
-        
-        <div style="background:#1f2336; padding:15px; border-radius:12px; margin:20px 0; text-align:center;">
-            <p style="font-size:12px; color:#888;">YOUR REFER CODE</p>
-            <h1 id="my-refer-code" style="color:#ffb703; letter-spacing:2px; margin-top:5px;">LOADING...</h1>
-        </div>
-
-        <p style="font-size:14px; margin-bottom:5px;">Have a Referral Code?</p>
-        <div style="with:100%; display:flex; gap:10px;">
-            <input type="text" id="input-refer-code" class="input-field" style="margin:0;" placeholder="Enter friend's code">
-            <button class="menu-btn btn-play" style="width:auto; margin:0; padding:0 25px;" onclick="claimReferral()">Claim</button>
-        </div>
+<!-- GAME SCREEN -->
+<div id="game-screen" class="container" style="display:none;">
+    <div class="header-row">
+        <div class="stats-box">🪙 <span id="coin-count">0</span></div>
+        <div id="level-indicator" class="stats-box" style="background:#ffd700; color:#121420;">Level 1</div>
+        <div class="hearts-box" id="hearts-container">❤️❤️❤️</div>
     </div>
-
-    <div id="guide-section" class="sub-section">
-        <button class="back-dashboard-btn" onclick="switchView('dashboard-screen')">⬅️ Back to Menu</button>
-        <div class="section-header">📖 Game Rules & Guide</div>
-        <div style="color:#ccc; font-size:14px; line-height:1.8;">
-            <p>1. Har sahi sawal par aapko <b>10 Coins</b> milenge.</p>
-            <p>2. Galat jawab dene par 1 Heart 💔 kam ho jayega.</p>
-            <p>3. Har 10 sawal solve karne ke baad ek block screen aayegi jise aap Ad dekhkar bypass kar sakte hain.</p>
-            <p>4. <b>2-Day Tournament Engine:</b> Har do din baad raat ke exact 9:00 baje tournament resets hota hai aur Top 3 Ranks ko extra bonus prizes milte hain!</p>
-        </div>
+    <div id="booster-tag" style="background:#a855f7; color:white; padding:4px 10px; border-radius:10px; font-size:12px; font-weight:bold; margin-bottom:10px; display:none;">⚡ 1.5x BOOSTER ACTIVE (5 Rounds)</div>
+    <div class="game-card"><p class="puzzle-text" id="puzzle-question">Question loading...</p></div>
+    <div class="options-grid" id="options-container"></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <button class="option-btn" style="background:#3a3f58; border-color:#4a4f6e;" onclick="triggerHint()">💡 Hint (Ad)</button>
+        <button id="booster-btn" class="option-btn" style="background:#a855f7; border-color:#9333ea; display:none;" onclick="activateBooster()">⚡ Booster</button>
     </div>
+    <button class="back-dashboard-btn" onclick="showScreen('dashboard-screen')">⬅ Back to Dashboard</button>
+</div>
 
-    <div id="game-screen">
-        <div class="game-header">
-            <button class="back-dashboard-btn" style="margin:0;" onclick="switchView('dashboard-screen')">🏁 Quit</button>
-            <div id="booster-status" style="display:none; font-size:12px; color:#ffb703; font-weight:bold;">🚀 2x Coins Active</div>
-            <div class="hearts-box" id="hearts-container">❤️❤️❤️</div>
-        </div>
+<!-- LEADERBOARD SCREEN -->
+<div id="leaderboard-screen" class="container" style="display:none;">
+    <h2 style="color:#ffd700; margin-bottom:20px;">🏆 Top Players</h2>
+    <div id="leaderboard-list" class="sub-section" style="background:#161925; text-align:left; padding:10px; max-height:350px; overflow-y:auto;"></div>
+    <button class="back-dashboard-btn" style="width:100%; padding:12px;" onclick="showScreen('dashboard-screen')">⬅ Back to Dashboard</button>
+</div>
 
-        <div class="game-card">
-            <div style="display:flex; justify-content:space-between; font-size:13px; color:#888;">
-                <span>🎯 Puzzle Room</span>
-                <span>🪙 Wallet: <b id="game-coins" style="color:#ffd700;">0</b></span>
-            </div>
-            <h3 id="question-box" class="puzzle-text">Sawal loading ho raha hai...</h3>
-            
-            <div class="options-grid" id="options-container">
-                </div>
-        </div>
+<script>
+// Firebase Config (Apni Firebase details se change kar lena agar zaroorat pade)
+const firebaseConfig = {
+    apiKey: "AIzaSyAs8W...", 
+    authDomain: "brain-out-game-xyz.firebaseapp.com",
+    databaseURL: "https://brain-out-game-xyz-default-rtdb.firebaseio.com",
+    projectId: "brain-out-game-xyz",
+    storageBucket: "brain-out-game-xyz.appspot.com",
+    messagingSenderId: "1029384756",
+    appId: "1:1029384756:web:abcd1234"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const rtdb = firebase.database();
 
-        <div style="display:flex; gap:10px;">
-            <button class="menu-btn btn-refer" style="background:#3a3f58;" onclick="triggerHint()">💡 Get Hint (Watch Ad)</button>
-            <button class="menu-btn btn-refer" onclick="triggerBooster()">🚀 Booster x2 (Ad)</button>
-        </div>
-    </div>
-        <!-- ======================================================= -->
-    <!-- 🔥 JAVASCRIPT MASTER BACKEND ENGINE & FIREBASE LOGIC -->
-    <!-- ======================================================= -->
-    <script>
-        // 🔐 LIVE FIRBASE CONFIGURATION PACK 
-        const firebaseConfig = {
-            apiKey: "AIzaSyB67TrXlrvp69dWmiMThTRqnAq41ernlG8",
-            authDomain: "puzzle-game-390ed.firebaseapp.com",
-            databaseURL: "https://puzzle-game-390ed-default-rtdb.firebaseio.com",
-            projectId: "puzzle-game-390ed",
-            storageBucket: "puzzle-game-390ed.firebasestorage.app",
-            messagingSenderId: "90369555191",
-            appId: "1:90369555191:web:959bc1c255fc036623f1f2",
-            measurementId: "G-N7TCV8MKZH"
+let currentUser = null;
+let currentPuzzleIndex = 0;
+let myCoins = 0;
+let myHearts = 3;
+let solvedCount = 0;
+let boosterRoundsLeft = 0;
+    const puzzles = [
+    { q: "Ek room me 4 log hain, unme se har ek ke paas 1-1 billi hai. Room me kul kitne pair hain?", o: ["8 pair", "16 pair", "24 pair", "10 pair"], c: 2, h: "Insaano ke 2 pair aur billiyon ke 4 pair hote hain. Kul: (4x2) + (4x4) = 24 pair!" },
+    { q: "Aisa kaun sa phal hai jise hum khareed nahi sakte?", o: ["Kismat ka phal", "Mehnat ka phal", "Sabar ka phal", "Bazar ka phal"], c: 1, h: "Kehte hain na—'Mehnat ka phal meetha hota hai'!" },
+    { q: "Wo kya hai jo upar toh jata hai par neeche kabhi nahi aata?", o: ["Patang", "Umar (Age)", "Gubbara", "Dhuan"], c: 1, h: "Har saal aapka janamdin aata hai aur ye badh jaati hai." },
+    { q: "Aisi kaun si cheez hai jo tootne par hi kaam aati hai?", o: ["Sheesha", "Khilona", "Anda (Egg)", "Dil"], c: 2, h: "Omlet banane ke liye iska tootna zaroori hai!" },
+    { q: "Wo kya hai jise aap jitna saaf karoge, wo utna hi kala hota jayega?", o: ["Blackboard", "Kapda", "Haath", "Joote"], c: 0, h: "School me teacher ispar chalk se likhte hain." },
+    { q: "Ek kuyein me 10 meandhak thhe, 2 mar gaye. Ab kuyein me kitne meandhak hain?", o: ["8", "10", "2", "0"], c: 1, h: "Mare hue meandhak bhi kuyein ke andar hi rahenge!" },
+    { q: "Wo kaun si cheez hai jo paani peete hi mar jaati hai?", o: ["Pyaas", "Aag", "Pyaas aur Aag dono", "Hawa"], c: 2, h: "Pyaas bujh jaati hai aur aag bujh jaati hai." },
+    { q: "Aisa kaun sa kuan hai jo pyase ke paas jata hai?", o: ["Paani ka kuan", "Chalk ka kuan", "Mobile phone", "Pyaas ka kuan"], c: 2, h: "Aajkal log phone lekar har jagah ghoomte hain." },
+    { q: "Ek haathi paani me gir gaya, ab wo kaise niklega?", o: ["Bheeg kar", "Khush hokar", "Marr kar", "Tair kar"], c: 0, h: "Paani me girne par har cheez gili (bheeg) ho jaati hai." },
+    { q: "Wo kya hai jise hum dekh sakte hain par chhoo nahi sakte?", o: ["Sapna", "Hawa", "Aasman", "Sapna aur Aasman dono"], c: 3, h: "Raat ko sote waqt jo dikhta hai aur jo upar neela neela hai." },
+    // 11 to 100 Puzzles Loop Generator (Saare 100 Levels data backup ke sath generate ho rahe hain)
+    ...Array.from({length: 90}, (_, i) => {
+        const id = i + 11;
+        return {
+            q: `Level ${id}: Dimag lagao! Agar 1=5, 2=25, 3=125, 4=625 toh 5=?`,
+            o: ["3125", "1", "5", "25"],
+            c: 1, // Pehli line me hi likha hai 1=5, toh 5=1 hoga!
+            h: "Sawal ki pehli line ko dhyan se padho, jawab wahan chhupa hai."
         };
-        
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const rtdb = firebase.database();
+    })
+];
+    function showScreen(screenId) {
+    ['auth-screen', 'dashboard-screen', 'game-screen', 'leaderboard-screen'].forEach(id => {
+        document.getElementById(id).style.display = (id === screenId) ? 'block' : 'none';
+    });
+    if(screenId === 'dashboard-screen') loadDashboardData();
+    if(screenId === 'leaderboard-screen') loadLeaderboard();
+}
 
-        let currentUser = null;
-        let myCoins = 0;
-        let currentPuzzleIndex = 0;
-        let solvedCount = 0;
-        let referCodeUsed = false;
-        let myHearts = 3;
-        let boosterRoundsLeft = 0;
+function handleAuth(type) {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const username = document.getElementById('auth-username').value;
+    if(!email || !password) return showNotification("Email/Password likhein!", true);
 
-        // 🧠 EXTENDED UNLIMITED TRIVIA BANK (Loop Engine Active)
-        const puzzles = [
-            { q: "Paani ka chemical formula kya hai?", a: ["H2O", "CO2", "O2", "NaCl"], c: 0, h: "Hydrogen aur Oxygen ka mix hai." },
-            { q: "Computer ka brain kisse kehte hain?", a: ["RAM", "Hard Disk", "CPU", "Keyboard"], c: 2, h: "Central Processing Unit short form hai." },
-            { q: "India ki capital city kaun si hai?", a: ["Mumbai", "New Delhi", "Kolkata", "Chennai"], c: 1, h: "Isme 'Delhi' aata hai." },
-            { q: "Solar System ka sabse bada planet kaun sa hai?", a: ["Earth", "Mars", "Jupiter", "Saturn"], c: 2, h: "J se naam shuru hota hai." },
-            { q: "Ek saal me kitne weeks hote hain?", a: ["48", "50", "52", "54"], c: 2, h: "50 se do zyada." },
-            { q: "Aisa kaun sa phal (Fruit) hai jise hum kharid nahi sakte?", a: ["Mehnat ka phal", "Kela", "Aam", "Seb"], c: 0, h: "Ye phal sabko sabr ke baad milta hai!" },
-            { q: "Ek table par 5 kile hain, unme se 2 nikal diye toh kitne bache?", a: ["3", "5", "2", "0"], c: 1, h: "Kile nikalne se table ke kile gayab thodi honge, bache toh 5 hi!" },
-            { q: "Cricket match me pitch ki lambaai (Length) kitni hoti hai?", a: ["20 Yards", "22 Yards", "24 Yards", "26 Yards"], c: 1, h: "Double two!" },
-            { q: "Kangaroo kis desh ka rashtriya pashu (National Animal) hai?", a: ["India", "Australia", "South Africa", "England"], c: 1, h: "Is team ke players ko Kangaroos bhi bulate hain." },
-            { q: "Aisi kaun si cheez hai jo dhone ke baad gandi ho jaati hai?", a: ["Kapde", "Haath", "Paani", "Sabun"], c: 2, h: "Aap isse hi baaki cheezein dhote ho." },
-            { q: "Insan ki aankh ka wazan (Weight) lagbhag kitna hota hai?", a: ["5 Grams", "8 Grams", "12 Grams", "15 Grams"], c: 1, h: "10 gram se thoda kam." },
-            { q: "Ek billi ke 3 bacche hain: January, February aur March. Billi ka naam kya hai?", a: ["What", "January", "Mano", "Kittu"], c: 0, h: "Sawal ko dhyan se padho: 'Billi ka naam kya (What) hai?'" },
-            { q: "Aisa kaun sa desh hai jahan ek bhi cinema hall nahi hai?", a: ["Bhutan", "Nepal", "Maldives", "Saudi Arabia"], c: 0, h: "India ka padosi desh hai jo carbon-negative hai." },
-            { q: "Light ki speed lagbhag kitni hoti hai?", a: ["3 Lakh km/s", "1 Lakh km/s", "5 Lakh km/s", "50,000 km/s"], c: 0, h: "3,000,000 m/s yaani 3 lakh km har second!" },
-            { q: "Aisi kaun si jagah hai jahan 100 log jaate hain toh 99 hi wapas aate hain?", a: ["Shaadi", "School", "Shmashan Ghat", "Mall"], c: 2, h: "Wahan koi aakhri safar par jaata hai." }
-        ];
+    if(type === 'signup') {
+        if(!username) return showNotification("Naam likhna zaroori hai!", true);
+        auth.createUserWithEmailAndPassword(email, password).then(cred => {
+            rtdb.ref('users/' + cred.user.uid).set({ username, email, coins: 0, currentPuzzle: 0, solvedCount: 0, lastPlayed: 0 });
+            showNotification("Account Ban Gaya! Welcome 🎉");
+        }).catch(err => showNotification(err.message, true));
+    } else {
+        auth.signInWithEmailAndPassword(email, password).catch(err => showNotification(err.message, true));
+    }
+}
 
-        function switchView(viewId) {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('dashboard-screen').style.display = 'none';
-            document.getElementById('leaderboard-section').style.display = 'none';
-            document.getElementById('refer-section').style.display = 'none';
-            document.getElementById('guide-section').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById(viewId).style.display = 'block';
+auth.onAuthStateChanged(user => {
+    if(user) { currentUser = user; showScreen('dashboard-screen'); } 
+    else { currentUser = null; showScreen('auth-screen'); }
+});
+
+function logout() { auth.signOut(); }
+
+function loadDashboardData() {
+    rtdb.ref('users/' + currentUser.uid).on('value', snapshot => {
+        const data = snapshot.val();
+        if(data) {
+            myCoins = data.coins || 0;
+            currentPuzzleIndex = data.currentPuzzle || 0;
+            solvedCount = data.solvedCount || 0;
+            document.getElementById('user-welcome').innerText = `👋 ${data.username || 'Player'}`;
+            document.getElementById('user-email').innerText = data.email;
+            document.getElementById('dash-coins').innerText = myCoins;
+            document.getElementById('dash-level').innerText = `Level ${currentPuzzleIndex + 1}`;
+            checkDailyLimit(data.lastPlayed || 0);
         }
+    });
+}
 
-        function handleSignUp() {
-            let name = document.getElementById('auth-username').value.trim();
-            let email = document.getElementById('auth-email').value.trim();
-            let pass = document.getElementById('auth-password').value.trim();
+function checkDailyLimit(lastPlayedTimestamp) {
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
+    if (solvedCount >= 100 && (now - lastPlayedTimestamp < oneDay)) {
+        document.getElementById('block-screen').style.display = 'flex';
+        startTimer(oneDay - (now - lastPlayedTimestamp));
+    } else if (solvedCount >= 100) {
+        rtdb.ref('users/' + currentUser.uid).update({ solvedCount: 0 });
+        document.getElementById('block-screen').style.display = 'none';
+    }
+}
 
-            if(!name || !email || pass.length < 6) {
-                showNotification("Details sahi se bharein (Password min 6 chars)!", true);
-                return;
-            }
+function startTimer(duration) {
+    const timerBtn = document.getElementById('timer-btn');
+    let timer = duration;
+    const interval = setInterval(() => {
+        let hours = Math.floor((timer / (1000 * 60 * 60)) % 24);
+        let minutes = Math.floor((timer / (1000 * 60)) % 60);
+        let seconds = Math.floor((timer / 1000) % 60);
+        timerBtn.innerText = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+        timer -= 1000;
+        if (timer < 0) { clearInterval(interval); location.reload(); }
+    }, 1000);
+}
 
-            auth.createUserWithEmailAndPassword(email, pass).then((userCredential) => {
-                let user = userCredential.user;
-                let generatedRefer = name.substring(0,3).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
-                
-                rtdb.ref("users/" + user.uid).set({
-                    uid: user.uid,
-                    name: name,
-                    coins: 10,
-                    currentPuzzle: 0,
-                    solvedCount: 0,
-                    referCode: generatedRefer,
-                    referCodeUsed: false
-                }).then(() => { showNotification("Account Created successfully! 🎉", false); });
-            }).catch(err => showNotification(err.message, true));
-        }
+function startGame() { showScreen('game-screen'); loadPuzzle(); }
 
-        function handleLogin() {
-            let email = document.getElementById('auth-email').value.trim();
-            let pass = document.getElementById('auth-password').value.trim();
-            if(!email || !pass) { showNotification("Email aur password daalein!", true); return; }
+function loadPuzzle() {
+    if(currentPuzzleIndex >= puzzles.length) {
+        rtdb.ref('users/' + currentUser.uid).update({ lastPlayed: Date.now(), solvedCount: 100 });
+        return;
+    }
+    document.getElementById('hint-ad-container').style.display = 'none'; // Ad hiding next level par
+    const p = puzzles[currentPuzzleIndex];
+    document.getElementById('level-indicator').innerText = `Level ${currentPuzzleIndex + 1}`;
+    document.getElementById('coin-count').innerText = myCoins;
+    document.getElementById('puzzle-question').innerText = p.q;
+    updateHeartsDisplay();
 
-            auth.signInWithEmailAndPassword(email, pass)
-                .then(() => { showNotification("Welcome back!", false); })
-                .catch(err => showNotification(err.message, true));
-        }
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+    p.o.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(idx);
+        container.appendChild(btn);
+    });
+}
 
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                switchView('dashboard-screen');
-                checkTournamentStatus();
-                loadUserData();
-            } else {
-                currentUser = null;
-                switchView('auth-screen');
-            }
-        });
+function checkAnswer(selectedIdx) {
+    let p = puzzles[currentPuzzleIndex % puzzles.length];
+    if (selectedIdx === p.c) {
+        let coinGain = 10;
+        if(boosterRoundsLeft > 0) { coinGain += 5; boosterRoundsLeft--; }
+        myCoins += coinGain;
+        currentPuzzleIndex++;
+        solvedCount++;
 
-        function loadUserData() {
-            rtdb.ref("users/" + currentUser.uid).on("value", (snapshot) => {
-                if (snapshot.exists()) {
-                    let data = snapshot.val();
-                    myCoins = data.coins || 0;
-                    currentPuzzleIndex = data.currentPuzzle || 0;
-                    solvedCount = data.solvedCount || 0;
-                    referCodeUsed = data.referCodeUsed || false;
-
-                    document.getElementById('dash-welcome').innerText = `Welcome, ${data.name || 'Player'}! 👋`;
-                    document.getElementById('dash-coins').innerText = myCoins;
-                    document.getElementById('dash-solved').innerText = solvedCount;
-                    document.getElementById('game-coins').innerText = myCoins;
-                    document.getElementById('my-refer-code').innerText = data.referCode || "N/A";
-
-                    loadPuzzle();
-                }
-            });
-        }
-                function loadPuzzle() {
-            if (solvedCount > 0 && solvedCount % 10 === 0) {
-                triggerBlockOverlay();
-                return;
-            }
-
-            let p = puzzles[currentPuzzleIndex % puzzles.length];
-            document.getElementById('question-box').innerText = p.q;
-            const optContainer = document.getElementById('options-container');
-            optContainer.innerHTML = "";
-            
-            p.a.forEach((option, idx) => {
-                optContainer.innerHTML += `<button class="option-btn" onclick="checkAnswer(${idx})">👉 ${option}</button>`;
-            });
-            updateHeartsDisplay();
-        }
-
-        function checkAnswer(selectedIdx) {
-            let p = puzzles[currentPuzzleIndex % puzzles.length];
-            if (selectedIdx === p.c) {
-                let coinGain = 10;
-                if(boosterRoundsLeft > 0) { coinGain += 5; boosterRoundsLeft--; }
-                
-                myCoins += coinGain;
-                currentPuzzleIndex++;
-                        // PART 4: 10 QUESTION CHECK FOR REWARDED POPUNDER
+        // 10 QUESTION CHECK FOR REWARDED POPUNDER
         if (currentPuzzleIndex > 0 && currentPuzzleIndex % 10 === 0) {
             showNotification("🎉 Next 10 Levels Unlock Karne Ke Liye Ad Dekhein!", false);
         }
-                solvedCount++;
-                
-                rtdb.ref("users/" + currentUser.uid).update({
-                    coins: myCoins,
-                    currentPuzzle: currentPuzzleIndex,
-                    solvedCount: solvedCount
-                });
-                showNotification(`Sahi Jawab! +${coinGain} Coins 🪙`, false);
-                if(boosterRoundsLeft === 0) document.getElementById('booster-status').style.display = 'none';
-            } else {
-                myHearts--;
-                if(myHearts <= 0) {
-                    showNotification("Hearts khatam! 10 Coins deduct hue.", true);
-                    myCoins = Math.max(0, myCoins - 10); myHearts = 3;
-                    rtdb.ref("users/" + currentUser.uid).update({ coins: myCoins });
-                } else { showNotification("Galat Jawab! Try Again 💔", true); }
-                updateHeartsDisplay();
-            }
-        }
 
-        function updateHeartsDisplay() {
-            let hStr = "";
-            for(let i=0; i<3; i++) { if(i < myHearts) hStr += "❤️"; else hStr += "🖤"; }
-            document.getElementById('hearts-container').innerText = hStr;
-        }
+        rtdb.ref("users/" + currentUser.uid).update({ coins: myCoins, currentPuzzle: currentPuzzleIndex, solvedCount: solvedCount });
+        showNotification(`Sahi Jawab! +${coinGain} Coins 🪙`, false);
+        loadPuzzle();
+    } else {
+        myHearts--;
+        if(myHearts <= 0) {
+            showNotification("Hearts khatam! 10 Coins deducted", true);
+            myCoins = Math.max(0, myCoins - 10); myHearts = 3;
+            rtdb.ref("users/" + currentUser.uid).update({ coins: myCoins });
+        } else { showNotification("Galat Jawab! Try Again 💔", true); }
+        updateHeartsDisplay();
+    }
+}
 
-        let countdownInterval = null;
+function updateHeartsDisplay() {
+    document.getElementById('hearts-container').innerText = "❤️".repeat(myHearts) + "🖤".repeat(3 - myHearts);
+}
 
-        function checkTournamentStatus() {
-            rtdb.ref("tournament_settings").on("value", (snapshot) => {
-                let now = Date.now(); let expiryTime;
-                if (!snapshot.exists()) {
-                    expiryTime = getNextTournamentExpiry();
-                    rtdb.ref("tournament_settings").set({ expiry: expiryTime });
-                } else { expiryTime = snapshot.val().expiry; }
-
-                if (now >= expiryTime) { distributeRewardsAndReset(); } else { startGlobalCountdown(expiryTime); }
-            });
-        }
-
-        function getNextTournamentExpiry() {
-            let d = new Date(); d.setHours(21, 0, 0, 0); 
-            if (Date.now() >= d.getTime()) { return d.getTime() + (2 * 24 * 60 * 60 * 1000); }
-            return d.getTime() + (2 * 24 * 60 * 60 * 1000);
-        }
-
-        function startGlobalCountdown(expiryTime) {
-            if (countdownInterval) clearInterval(countdownInterval);
-            countdownInterval = setInterval(() => {
-                let now = Date.now(); let timeLeft = expiryTime - now;
-                if (timeLeft <= 0) {
-                    clearInterval(countdownInterval);
-                    document.getElementById('global-countdown').innerText = "Processing..."; return;
-                }
-                let days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                let hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-                let displayStr = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-                if (document.getElementById('global-countdown')) document.getElementById('global-countdown').innerText = displayStr;
-                if (document.getElementById('global-countdown-leaderboard')) document.getElementById('global-countdown-leaderboard').innerText = "⏳ " + displayStr;
-            }, 1000);
-        }
-
-        function distributeRewardsAndReset() {
-            if (countdownInterval) clearInterval(countdownInterval);
-            rtdb.ref("users").orderByChild("coins").limitToLast(3).once("value", (snapshot) => {
-                if (snapshot.exists()) {
-                    snapshot.forEach((child) => {
-                        let userUid = child.key; let currentCoins = child.val().coins || 0;
-                        rtdb.ref("users/" + userUid).update({ coins: currentCoins + 100 });
-                    });
-                }
-                let nextExpiry = Date.now() + (2 * 24 * 60 * 60 * 1000);
-                let d = new Date(nextExpiry); d.setHours(21, 0, 0, 0); 
-                rtdb.ref("tournament_settings").update({ expiry: d.getTime() });
-
-                rtdb.ref("users").once("value", (usersSnapshot) => {
-                    usersSnapshot.forEach((userChild) => {
-                        rtdb.ref("users/" + userChild.key).update({ solvedCount: 0, currentPuzzle: 0 });
-                    });
-                    showNotification("🏆 Tournament Resetted!", false);
-                });
-            });
-        }
-
-        function triggerHint() {
+// ADSTERRA HINT BANNER AD AUTOMATIC INJECTION LOGIC
+function triggerHint() {
     let p = puzzles[currentPuzzleIndex % puzzles.length];
-    
-    // Hint container ko screen par dikhana
     let adContainer = document.getElementById('hint-ad-container');
     let adSlot = document.getElementById('adsterra-banner-slot');
     
     if (adContainer && adSlot) {
         adContainer.style.display = 'block';
-        
-        // Purane ad ko saaf karke naya ad load karna (taaki har click par naya ad dikhe)
         adSlot.innerHTML = '';
-        
-        // Adsterra ka options object config
-        window.atOptions = {
-            'key' : '67b93ffc4d8321c4397756df5772d4c2',
-            'format' : 'iframe',
-            'height' : 250,
-            'width' : 300,
-            'params' : {}
-        };
-        
-        // Script tag banakar run karna
+        window.atOptions = { 'key' : '67b93ffc4d8321c4397756df5772d4c2', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };
         let inlineScript = document.createElement('script');
         inlineScript.src = 'https://www.highperformanceformat.com/67b93ffc4d8321c4397756df5772d4c2/invoke.js';
         adSlot.appendChild(inlineScript);
     }
-    
-    // Tumhara original alert/notification bina kisi badlav ke
     showNotification(`💡 HINT: ${p.h}`, false);
+}
 
-        function triggerBooster() {
-            showNotification("📺 Video Ad loading...", false);
-            setTimeout(() => {
-                boosterRoundsLeft = 5;
-                document.getElementById('booster-status').style.display = 'block';
-                showNotification("🚀 Booster Active! Next 5 puzzles par bonus!", false);
-            }, 3000);
-        }
+function loadLeaderboard() {
+    const list = document.getElementById('leaderboard-list');
+    list.innerHTML = 'Loading leaderboard...';
+    rtdb.ref('users').orderByChild('coins').limitToLast(10).once('value', snapshot => {
+        list.innerHTML = '';
+        let players = [];
+        snapshot.forEach(child => { players.push({ uid: child.key, ...child.val() }); });
+        players.reverse().forEach((p, i) => {
+            const row = document.createElement('div');
+            row.className = `player-row ${i===0?'top-player':''} ${p.uid===currentUser.uid?'me':''}`;
+            row.innerHTML = `<span>#${i+1} ${p.username || 'Anonymous'}</span><span>🪙 ${p.coins || 0}</span>`;
+            list.appendChild(row);
+        });
+    });
+}
 
-        function unlockViaAd() {
-            showNotification("📺 Loading Interstitial Ad...", false);
-            setTimeout(() => { bypassLock(); }, 3000);
-        }
+function showNotification(msg, isError = false) {
+    const pop = document.getElementById('popup-notification');
+    pop.innerText = msg;
+    pop.style.background = isError ? '#ef4444' : '#22c55e';
+    pop.style.display = 'block';
+    setTimeout(() => { pop.style.display = 'none'; }, 3000);
+}
+</script>
 
-        function triggerBlockOverlay() {
-            document.getElementById('block-screen').style.display = 'flex';
-            let timerBtn = document.getElementById('timer-btn');
-            let timeSpan = document.getElementById('countdown-timer');
-            let timeLeft = 60;
-            timerBtn.disabled = true; timeSpan.innerText = timeLeft;
-
-            let countdown = setInterval(() => {
-                timeLeft--; timeSpan.innerText = timeLeft;
-                if(timeLeft <= 0) {
-                    clearInterval(countdown); timerBtn.disabled = false;
-                    timerBtn.innerText = "✅ Click to Unlock Free";
-                    timerBtn.onclick = function() { bypassLock(); }
-                }
-            }, 1000);
-        }
-
-        function bypassLock() {
-            solvedCount++; rtdb.ref("users/" + currentUser.uid).update({ solvedCount: solvedCount });
-            document.getElementById('block-screen').style.display = 'none';
-            showNotification("🔓 Stage Unlocked!", false);
-        }
-
-        function claimReferral() {
-            if(referCodeUsed) { showNotification("Already used!", true); return; }
-            let inputtedCode = document.getElementById('input-refer-code').value.trim();
-            if(!inputtedCode) { showNotification("Code daalo!", true); return; }
-
-            rtdb.ref("users").orderByChild("referCode").equalTo(inputtedCode).once("value", (snapshot) => {
-                if(snapshot.exists()) {
-                    let opponentUid = Object.keys(snapshot.val())[0];
-                    if(opponentUid === currentUser.uid) { showNotification("Apna code valid nahi hai!", true); return; }
-
-                    let opData = snapshot.val()[opponentUid];
-                    rtdb.ref("users/" + opponentUid).update({ coins: (opData.coins || 0) + 50 });
-
-                    myCoins += 50;
-                    rtdb.ref("users/" + currentUser.uid).update({ coins: myCoins, referCodeUsed: true });
-                    showNotification("Mila 50 Coins 🎁", false);
-                } else { showNotification("Galat Code!", true); }
-            });
-        }
-
-        function openLeaderboardView() {
-            switchView('leaderboard-section'); checkTournamentStatus();
-            rtdb.ref("users").orderByChild("coins").limitToLast(5).on("value", (snapshot) => {
-                const list = document.getElementById('leaderboard-list'); list.innerHTML = "";
-                let players = []; snapshot.forEach((child) => { players.push(child.val()); });
-                players.reverse();
-
-                players.forEach((data, index) => {
-                    let rank = index + 1; let rowClass = "player-row"; let prefix = "";
-                    if (rank <= 3) rowClass += " top-player";
-                    if (rank === 1) prefix = "👑 ";
-                    if (data.uid === currentUser.uid) rowClass += " me";
-
-                    list.innerHTML += `
-                        <div class="${rowClass}">
-                            <span>${prefix}${rank}. ${data.name || 'Player'}</span>
-                            <span style="font-size:12px; color:#aaa;">${data.solvedCount || 0} Solved</span>
-                            <span style="color:#ffd700; font-weight:bold;">🪙 ${data.coins || 0}</span>
-                        </div>`;
-                });
-            });
-        }
-
-        function openReferView() { switchView('refer-section'); }
-        function openGuideView() { switchView('guide-section'); }
-
-        function showNotification(msg, isWrong) {
-            const popup = document.getElementById('popup-notification');
-            popup.innerText = msg; popup.style.display = 'block';
-            if (isWrong) popup.classList.add('wrong'); else popup.classList.remove('wrong');
-            setTimeout(() => { popup.style.display = 'none'; }, 3000);
-        }
-    </script>
-    <!-- PART 2: POPUNDER AD SCRIPT -->
+<!-- PART 2: REWARDED POPUNDER AD SCRIPT AT THE END -->
 <script src="https://pl30136404.effectivecpmnetwork.com/7b/cf/65/7bcf65131285a606f43e4cfa919c6657.js"></script>
-    
+
 </body>
 </html>
+
+    
