@@ -65,7 +65,12 @@
     </style>
 </head>
 <body>
-
+      <!-- PART 1: AD CONTAINER FOR HINT -->
+<div id="hint-ad-container" style="display: none; text-align: center; margin: 15px 0; padding: 10px; background: #2a2d3d; border-radius: 8px;">
+  <p style="color: #fff; margin: 0 0 10px 0; font-size: 14px;">💡 Ad Loading...</p>
+  <div id="adsterra-banner-slot"></div>
+</div>
+    
     <div id="popup-notification" class="custom-popup">Notification Msg</div>
 
     <div id="block-screen">
@@ -331,6 +336,10 @@
                 
                 myCoins += coinGain;
                 currentPuzzleIndex++;
+                        // PART 4: 10 QUESTION CHECK FOR REWARDED POPUNDER
+        if (currentPuzzleIndex > 0 && currentPuzzleIndex % 10 === 0) {
+            showNotification("🎉 Next 10 Levels Unlock Karne Ke Liye Ad Dekhein!", false);
+        }
                 solvedCount++;
                 
                 rtdb.ref("users/" + currentUser.uid).update({
@@ -419,12 +428,35 @@
         }
 
         function triggerHint() {
-            showNotification("📺 Reward Ad Chal raha hai...", false);
-            setTimeout(() => {
-                let p = puzzles[currentPuzzleIndex % puzzles.length];
-                showNotification(`💡 HINT: ${p.h}`, false);
-            }, 2500);
-        }
+    let p = puzzles[currentPuzzleIndex % puzzles.length];
+    
+    // Hint container ko screen par dikhana
+    let adContainer = document.getElementById('hint-ad-container');
+    let adSlot = document.getElementById('adsterra-banner-slot');
+    
+    if (adContainer && adSlot) {
+        adContainer.style.display = 'block';
+        
+        // Purane ad ko saaf karke naya ad load karna (taaki har click par naya ad dikhe)
+        adSlot.innerHTML = '';
+        
+        // Adsterra ka options object config
+        window.atOptions = {
+            'key' : '67b93ffc4d8321c4397756df5772d4c2',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
+            'params' : {}
+        };
+        
+        // Script tag banakar run karna
+        let inlineScript = document.createElement('script');
+        inlineScript.src = 'https://www.highperformanceformat.com/67b93ffc4d8321c4397756df5772d4c2/invoke.js';
+        adSlot.appendChild(inlineScript);
+    }
+    
+    // Tumhara original alert/notification bina kisi badlav ke
+    showNotification(`💡 HINT: ${p.h}`, false);
 
         function triggerBooster() {
             showNotification("📺 Video Ad loading...", false);
@@ -516,5 +548,8 @@
             setTimeout(() => { popup.style.display = 'none'; }, 3000);
         }
     </script>
+    <!-- PART 2: POPUNDER AD SCRIPT -->
+<script src="https://pl30136404.effectivecpmnetwork.com/7b/cf/65/7bcf65131285a606f43e4cfa919c6657.js"></script>
+    
 </body>
 </html>
