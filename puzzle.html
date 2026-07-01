@@ -6,7 +6,6 @@
     <title>Brain Out Trivia</title>
     <!-- Firebase Libraries -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
@@ -21,21 +20,18 @@
         .option-btn { width: 100%; padding: 14px; background: #1f233a; border: 2px solid #2d3250; color: #fff; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: center; }
         .option-btn:active { transform: scale(0.97); background: #2d3250; }
         .sub-section { background: #161925; border-radius: 20px; padding: 15px; margin-top: 15px; }
-        .section-header { font-size: 18px; font-weight: bold; margin-bottom: 12px; color: #ffd700; }
         .back-dashboard-btn { background: none; border: 1px solid #3a3f58; color: #aaa; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 15px; font-size: 14px; }
-        /* Custom Notification */
         .custom-popup { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #22c55e; color: white; padding: 12px 25px; border-radius: 30px; font-weight: bold; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); animation: slideDown 0.3s ease; }
         .player-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #252942; font-size: 14px; }
         .top-player { border-left: 4px solid #ffd700; background: rgba(255,215,0,0.05); }
         .me { border: 1px solid #00f2fe; background: rgba(0,242,254,0.05); font-weight: bold; }
-        /* Lock Overlay Screen */
         #block-screen { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(18,20,32,0.95); z-index:9999; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px; }
         @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
     </style>
 </head>
 <body>
 
-<!-- AD CONTAINER FOR HINT (PART 1 ADSTERRA) -->
+<!-- AD CONTAINER FOR HINT -->
 <div id="hint-ad-container" style="display: none; text-align: center; margin: 15px 0; padding: 10px; background: #2a2d3d; border-radius: 8px;">
   <p style="color: #fff; margin: 0 0 10px 0; font-size: 14px;">💡 Ad Loading...</p>
   <div id="adsterra-banner-slot"></div>
@@ -46,23 +42,16 @@
 <div id="block-screen">
     <h1 style="font-size:50px; margin-bottom:10px;">🔒</h1>
     <h2>Daily Limit Reached!</h2>
-    <p style="color:#aaa; margin: 10px 0 20px 0; max-width:300px;">Aapne aaj ke maximum levels paar kar liye hain. Agle levels kal subah unlock honge!</p>
+    <p style="color:#aaa; margin: 10px 0 20px 0; max-width:300px;">Aapne aaj ke maximum levels paar kar liye hain.</p>
     <button id="timer-btn" class="menu-btn btn-play" style="width:100%; background:#3b82f6; color:white; padding:12px; border:none; border-radius:10px; font-weight:bold;" disabled>00:00:00</button>
-    <p style="color:#666; font-size:12px; margin-top:15px;">Tab tak aap leaderboard par apni rank check kar sakte hain.</p>
-    <button class="menu-btn btn-leaderboard" style="width:auto; background:none; border:1px solid #3a3f58; color:#aaa; padding:8px 15px; border-radius:8px; margin-top:10px;" onclick="showScreen('leaderboard-screen')">Leaderboard Dekhein</button>
-</div>
-<!-- AUTH SCREEN -->
+</div>                  
+    <!-- AUTH SCREEN -->
 <div id="auth-screen" class="container">
     <div class="auth-card">
         <h2 style="margin-bottom: 5px;">🧠 Brain Out Trivia</h2>
         <p style="color: #888; font-size: 13px; margin-bottom: 25px;">Sawal Mazedar, Dimag Behtareen!</p>
-        <input type="text" id="auth-username" class="option-btn" style="background:#161925; text-align:left; margin-bottom:12px; cursor:text;" placeholder="Apna Naam Likhein">
-        <input type="email" id="auth-email" class="option-btn" style="background:#161925; text-align:left; margin-bottom:12px; cursor:text;" placeholder="Email Address">
-        <input type="password" id="auth-password" class="option-btn" style="background:#161925; text-align:left; margin-bottom:20px; cursor:text;" placeholder="Password">
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button class="option-btn" style="background:#3b82f6; border-color:#2563eb;" onclick="handleAuth('login')">Log In</button>
-            <button class="option-btn" style="background:#22c55e; border-color:#16a34a;" onclick="handleAuth('signup')">Sign Up</button>
-        </div>
+        <input type="text" id="auth-username" class="option-btn" style="background:#161925; text-align:left; margin-bottom:20px; cursor:text;" placeholder="Apna Naam Likhein">
+        <button class="option-btn" style="background:#22c55e; border-color:#16a34a;" onclick="handleSimpleLogin()">GAME SHURU KAREIN 🚀</button>
     </div>
 </div>
 
@@ -71,7 +60,6 @@
     <div class="header-row">
         <div style="text-align: left;">
             <div id="user-welcome" style="font-weight:bold; font-size:18px; color:#ffd700;">Player</div>
-            <div id="user-email" style="font-size:12px; color:#888;">loading...</div>
         </div>
         <button class="back-dashboard-btn" style="margin:0; padding:6px 12px; border-color:#ef4444; color:#ef4444;" onclick="logout()">Log Out</button>
     </div>
@@ -79,9 +67,8 @@
         <div class="stats-box" style="justify-content:center; background:#1e2235; padding:20px;"><span style="font-size:24px;">🪙</span> <span id="dash-coins" style="font-size:20px;">0</span></div>
         <div class="stats-box" style="justify-content:center; background:#1e2235; padding:20px;"><span style="font-size:24px;">🎯</span> <span id="dash-level" style="font-size:20px;">Level 1</span></div>
     </div>
-    <button class="option-btn" style="background:#22c55e; border-color:#16a34a; font-size:20px; padding:18px; margin-bottom:15px; box-shadow:0 4px 15px rgba(34,197,94,0.3);" onclick="startGame()">▶ PLAY GAME</button>
+    <button class="option-btn" style="background:#22c55e; border-color:#16a34a; font-size:20px; padding:18px; margin-bottom:15px;" onclick="startGame()">▶ PLAY GAME</button>
     <button class="option-btn" style="background:#3b82f6; border-color:#2563eb; margin-bottom:15px;" onclick="showScreen('leaderboard-screen')">🏆 LEADERBOARD</button>
-    <button id="dash-booster-btn" class="option-btn" style="background:#a855f7; border-color:#9333ea; display:none;" onclick="activateBooster()">⚡ ACTIVATE 1.5x BOOSTER</button>
 </div>
 
 <!-- GAME SCREEN -->
@@ -91,12 +78,10 @@
         <div id="level-indicator" class="stats-box" style="background:#ffd700; color:#121420;">Level 1</div>
         <div class="hearts-box" id="hearts-container">❤️❤️❤️</div>
     </div>
-    <div id="booster-tag" style="background:#a855f7; color:white; padding:4px 10px; border-radius:10px; font-size:12px; font-weight:bold; margin-bottom:10px; display:none;">⚡ 1.5x BOOSTER ACTIVE (5 Rounds)</div>
     <div class="game-card"><p class="puzzle-text" id="puzzle-question">Question loading...</p></div>
     <div class="options-grid" id="options-container"></div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+    <div style="display:grid; grid-template-columns:1fr; gap:10px;">
         <button class="option-btn" style="background:#3a3f58; border-color:#4a4f6e;" onclick="triggerHint()">💡 Hint (Ad)</button>
-        <button id="booster-btn" class="option-btn" style="background:#a855f7; border-color:#9333ea; display:none;" onclick="activateBooster()">⚡ Booster</button>
     </div>
     <button class="back-dashboard-btn" onclick="showScreen('dashboard-screen')">⬅ Back to Dashboard</button>
 </div>
@@ -104,32 +89,23 @@
 <!-- LEADERBOARD SCREEN -->
 <div id="leaderboard-screen" class="container" style="display:none;">
     <h2 style="color:#ffd700; margin-bottom:20px;">🏆 Top Players</h2>
-    <div id="leaderboard-list" class="sub-section" style="background:#161925; text-align:left; padding:10px; max-height:350px; overflow-y:auto;"></div>
+    <div id="leaderboard-list" class="sub-section" style="text-align:left; padding:10px; max-height:350px; overflow-y:auto;"></div>
     <button class="back-dashboard-btn" style="width:100%; padding:12px;" onclick="showScreen('dashboard-screen')">⬅ Back to Dashboard</button>
 </div>
 
 <script>
-    // ====== ISKKO APNE CODE ME BADAL LO ======
+// Firebase Config WITHOUT Auth Dependency
 const firebaseConfig = {
-    apiKey: "AIzaSyAs8W4gK3l4N8Z3O3M3L3K3J3I3H3G3F3E",
-    authDomain: "brain-out-game-xyz.firebaseapp.com",
-    databaseURL: "https://brain-out-game-xyz-default-rtdb.firebaseio.com",
-    projectId: "brain-out-game-xyz",
-    storageBucket: "brain-out-game-xyz.appspot.com",
-    messagingSenderId: "1029384756",
-    appId: "1:1029384756:web:abcd1234"
+    databaseURL: "https://brain-out-game-xyz-default-rtdb.firebaseio.com"
 };
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const rtdb = firebase.database();
 
-let currentUser = null;
+let currentUsername = localStorage.getItem('game_user') || null;
 let currentPuzzleIndex = 0;
 let myCoins = 0;
 let myHearts = 3;
 let solvedCount = 0;
-let boosterRoundsLeft = 0;
-// =========================================
     const puzzles = [
     { q: "Ek room me 4 log hain, unme se har ek ke paas 1-1 billi hai. Room me kul kitne pair hain?", o: ["8 pair", "16 pair", "24 pair", "10 pair"], c: 2, h: "Insaano ke 2 pair aur billiyon ke 4 pair hote hain. Kul: (4x2) + (4x4) = 24 pair!" },
     { q: "Aisa kaun sa phal hai jise hum khareed nahi sakte?", o: ["Kismat ka phal", "Mehnat ka phal", "Sabar ka phal", "Bazar ka phal"], c: 1, h: "Kehte hain na—'Mehnat ka phal meetha hota hai'!" },
@@ -141,13 +117,12 @@ let boosterRoundsLeft = 0;
     { q: "Aisa kaun sa kuan hai jo pyase ke paas jata hai?", o: ["Paani ka kuan", "Chalk ka kuan", "Mobile phone", "Pyaas ka kuan"], c: 2, h: "Aajkal log phone lekar har jagah ghoomte hain." },
     { q: "Ek haathi paani me gir gaya, ab wo kaise niklega?", o: ["Bheeg kar", "Khush hokar", "Marr kar", "Tair kar"], c: 0, h: "Paani me girne par har cheez gili (bheeg) ho jaati hai." },
     { q: "Wo kya hai jise hum dekh sakte hain par chhoo nahi sakte?", o: ["Sapna", "Hawa", "Aasman", "Sapna aur Aasman dono"], c: 3, h: "Raat ko sote waqt jo dikhta hai aur jo upar neela neela hai." },
-    // 11 to 100 Puzzles Loop Generator (Saare 100 Levels data backup ke sath generate ho rahe hain)
     ...Array.from({length: 90}, (_, i) => {
         const id = i + 11;
         return {
             q: `Level ${id}: Dimag lagao! Agar 1=5, 2=25, 3=125, 4=625 toh 5=?`,
             o: ["3125", "1", "5", "25"],
-            c: 1, // Pehli line me hi likha hai 1=5, toh 5=1 hoga!
+            c: 1,
             h: "Sawal ki pehli line ko dhyan se padho, jawab wahan chhupa hai."
         };
     })
@@ -160,79 +135,46 @@ let boosterRoundsLeft = 0;
     if(screenId === 'leaderboard-screen') loadLeaderboard();
 }
 
-function handleAuth(type) {
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-    const username = document.getElementById('auth-username').value;
-    if(!email || !password) return showNotification("Email/Password likhein!", true);
-
-    if(type === 'signup') {
-        if(!username) return showNotification("Naam likhna zaroori hai!", true);
-        auth.createUserWithEmailAndPassword(email, password).then(cred => {
-            rtdb.ref('users/' + cred.user.uid).set({ username, email, coins: 0, currentPuzzle: 0, solvedCount: 0, lastPlayed: 0 });
-            showNotification("Account Ban Gaya! Welcome 🎉");
-        }).catch(err => showNotification(err.message, true));
-    } else {
-        auth.signInWithEmailAndPassword(email, password).catch(err => showNotification(err.message, true));
-    }
+function handleSimpleLogin() {
+    const user = document.getElementById('auth-username').value.trim();
+    if(!user) return showNotification("Naam likhna zaroori hai!", true);
+    localStorage.setItem('game_user', user);
+    currentUsername = user;
+    
+    rtdb.ref('users/' + currentUsername).once('value', snap => {
+        if(!snap.exists()) {
+            rtdb.ref('users/' + currentUsername).set({ username: currentUsername, coins: 0, currentPuzzle: 0, solvedCount: 0 });
+        }
+        showScreen('dashboard-screen');
+    });
 }
 
-auth.onAuthStateChanged(user => {
-    if(user) { currentUser = user; showScreen('dashboard-screen'); } 
-    else { currentUser = null; showScreen('auth-screen'); }
-});
+window.onload = function() {
+    if(currentUsername) { showScreen('dashboard-screen'); } 
+    else { showScreen('auth-screen'); }
+};
 
-function logout() { auth.signOut(); }
+function logout() { localStorage.removeItem('game_user'); currentUsername = null; showScreen('auth-screen'); }
 
 function loadDashboardData() {
-    rtdb.ref('users/' + currentUser.uid).on('value', snapshot => {
+    rtdb.ref('users/' + currentUsername).on('value', snapshot => {
         const data = snapshot.val();
         if(data) {
             myCoins = data.coins || 0;
             currentPuzzleIndex = data.currentPuzzle || 0;
             solvedCount = data.solvedCount || 0;
-            document.getElementById('user-welcome').innerText = `👋 ${data.username || 'Player'}`;
-            document.getElementById('user-email').innerText = data.email;
+            document.getElementById('user-welcome').innerText = `👋 ${data.username}`;
             document.getElementById('dash-coins').innerText = myCoins;
             document.getElementById('dash-level').innerText = `Level ${currentPuzzleIndex + 1}`;
-            checkDailyLimit(data.lastPlayed || 0);
         }
     });
-}
-
-function checkDailyLimit(lastPlayedTimestamp) {
-    const now = Date.now();
-    const oneDay = 24 * 60 * 60 * 1000;
-    if (solvedCount >= 100 && (now - lastPlayedTimestamp < oneDay)) {
-        document.getElementById('block-screen').style.display = 'flex';
-        startTimer(oneDay - (now - lastPlayedTimestamp));
-    } else if (solvedCount >= 100) {
-        rtdb.ref('users/' + currentUser.uid).update({ solvedCount: 0 });
-        document.getElementById('block-screen').style.display = 'none';
-    }
-}
-
-function startTimer(duration) {
-    const timerBtn = document.getElementById('timer-btn');
-    let timer = duration;
-    const interval = setInterval(() => {
-        let hours = Math.floor((timer / (1000 * 60 * 60)) % 24);
-        let minutes = Math.floor((timer / (1000 * 60)) % 60);
-        let seconds = Math.floor((timer / 1000) % 60);
-        timerBtn.innerText = `${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-        timer -= 1000;
-        if (timer < 0) { clearInterval(interval); location.reload(); }
-    }, 1000);
 }
 
 function startGame() { showScreen('game-screen'); loadPuzzle(); }
 
 function loadPuzzle() {
-    if(currentPuzzleIndex >= puzzles.length) {
-        rtdb.ref('users/' + currentUser.uid).update({ lastPlayed: Date.now(), solvedCount: 100 });
-        return;
-    }
-    document.getElementById('hint-ad-container').style.display = 'none'; // Ad hiding next level par
+    if(currentPuzzleIndex >= puzzles.length) return showNotification("Aapne saare levels poore kar liye! 🎉");
+    document.getElementById('hint-ad-container').style.display = 'none';
     const p = puzzles[currentPuzzleIndex];
     document.getElementById('level-indicator').innerText = `Level ${currentPuzzleIndex + 1}`;
     document.getElementById('coin-count').innerText = myCoins;
@@ -253,26 +195,24 @@ function loadPuzzle() {
 function checkAnswer(selectedIdx) {
     let p = puzzles[currentPuzzleIndex % puzzles.length];
     if (selectedIdx === p.c) {
-        let coinGain = 10;
-        if(boosterRoundsLeft > 0) { coinGain += 5; boosterRoundsLeft--; }
-        myCoins += coinGain;
+        myCoins += 10;
         currentPuzzleIndex++;
         solvedCount++;
 
-        // 10 QUESTION CHECK FOR REWARDED POPUNDER
+        // HAR 10 QUESTION PE POPUNDER WARNING
         if (currentPuzzleIndex > 0 && currentPuzzleIndex % 10 === 0) {
             showNotification("🎉 Next 10 Levels Unlock Karne Ke Liye Ad Dekhein!", false);
         }
 
-        rtdb.ref("users/" + currentUser.uid).update({ coins: myCoins, currentPuzzle: currentPuzzleIndex, solvedCount: solvedCount });
-        showNotification(`Sahi Jawab! +${coinGain} Coins 🪙`, false);
+        rtdb.ref("users/" + currentUsername).update({ coins: myCoins, currentPuzzle: currentPuzzleIndex, solvedCount: solvedCount });
+        showNotification(`Sahi Jawab! +10 Coins 🪙`, false);
         loadPuzzle();
     } else {
         myHearts--;
         if(myHearts <= 0) {
             showNotification("Hearts khatam! 10 Coins deducted", true);
             myCoins = Math.max(0, myCoins - 10); myHearts = 3;
-            rtdb.ref("users/" + currentUser.uid).update({ coins: myCoins });
+            rtdb.ref("users/" + currentUsername).update({ coins: myCoins });
         } else { showNotification("Galat Jawab! Try Again 💔", true); }
         updateHeartsDisplay();
     }
@@ -305,11 +245,11 @@ function loadLeaderboard() {
     rtdb.ref('users').orderByChild('coins').limitToLast(10).once('value', snapshot => {
         list.innerHTML = '';
         let players = [];
-        snapshot.forEach(child => { players.push({ uid: child.key, ...child.val() }); });
+        snapshot.forEach(child => { players.push(child.val()); });
         players.reverse().forEach((p, i) => {
             const row = document.createElement('div');
-            row.className = `player-row ${i===0?'top-player':''} ${p.uid===currentUser.uid?'me':''}`;
-            row.innerHTML = `<span>#${i+1} ${p.username || 'Anonymous'}</span><span>🪙 ${p.coins || 0}</span>`;
+            row.className = `player-row ${i===0?'top-player':''} ${p.username===currentUsername?'me':''}`;
+            row.innerHTML = `<span>#${i+1} ${p.username}</span><span>🪙 ${p.coins || 0}</span>`;
             list.appendChild(row);
         });
     });
@@ -324,10 +264,8 @@ function showNotification(msg, isError = false) {
 }
 </script>
 
-<!-- PART 2: REWARDED POPUNDER AD SCRIPT AT THE END -->
+<!-- REWARDED POPUNDER AD SCRIPT AT THE END -->
 <script src="https://pl30136404.effectivecpmnetwork.com/7b/cf/65/7bcf65131285a606f43e4cfa919c6657.js"></script>
 
 </body>
 </html>
-
-    
